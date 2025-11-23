@@ -6,10 +6,12 @@ import { api } from "@/lib/api";
 
 interface Photo {
   id: string;
-  title: string;
+  title: string; // Titre original (ne s'affiche pas, pour détecter doublons)
+  displayTitle?: string; // Titre affichable (modifiable)
   img: string;
   date?: string;
-  desc?: string;
+  desc?: string; // Description originale
+  displayDesc?: string; // Description affichable (modifiable)
 }
 
 interface EditorPanelProps {
@@ -53,10 +55,9 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
       // Sauvegarder chaque photo modifiée
       for (const photo of photos) {
         await api.photos.update(folder, photo.id, {
-          title: photo.title,
-          img: photo.img,
+          displayTitle: photo.displayTitle,
+          displayDesc: photo.displayDesc,
           date: photo.date,
-          desc: photo.desc,
         });
       }
       setMessage("Photos sauvegardées avec succès");
@@ -179,16 +180,41 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
                     display: "block",
                     marginBottom: "4px",
                     fontWeight: "500",
+                    fontSize: "12px",
+                    color: "#999",
+                  }}
+                >
+                  Titre original (détection doublons)
+                </label>
+                <div
+                  style={{
+                    padding: "8px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    borderLeft: "3px solid #999",
+                  }}
+                >
+                  {editingPhoto.title}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "12px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "4px",
+                    fontWeight: "500",
                     fontSize: "14px",
                   }}
                 >
-                  Titre
+                  Titre affiché (modifiable)
                 </label>
                 <input
                   type="text"
-                  value={editingPhoto.title}
+                  value={editingPhoto.displayTitle || editingPhoto.title}
                   onChange={(e) =>
-                    setEditingPhoto({ ...editingPhoto, title: e.target.value })
+                    setEditingPhoto({ ...editingPhoto, displayTitle: e.target.value })
                   }
                   style={{
                     width: "100%",
@@ -207,15 +233,42 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
                     display: "block",
                     marginBottom: "4px",
                     fontWeight: "500",
+                    fontSize: "12px",
+                    color: "#999",
+                  }}
+                >
+                  Description originale
+                </label>
+                <div
+                  style={{
+                    padding: "8px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    borderLeft: "3px solid #999",
+                    minHeight: "40px",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {editingPhoto.desc || "(aucune)"}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "12px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "4px",
+                    fontWeight: "500",
                     fontSize: "14px",
                   }}
                 >
-                  Description
+                  Description affichée (modifiable)
                 </label>
                 <textarea
-                  value={editingPhoto.desc || ""}
+                  value={editingPhoto.displayDesc || editingPhoto.desc || ""}
                   onChange={(e) =>
-                    setEditingPhoto({ ...editingPhoto, desc: e.target.value })
+                    setEditingPhoto({ ...editingPhoto, displayDesc: e.target.value })
                   }
                   style={{
                     width: "100%",
@@ -303,8 +356,11 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
                     fontSize: "14px",
                   }}
                 >
-                  <div style={{ fontWeight: "500", marginBottom: "8px" }}>
-                    {photo.title}
+                  <div style={{ fontWeight: "500", marginBottom: "4px" }}>
+                    {photo.displayTitle || photo.title}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#999", marginBottom: "8px" }}>
+                    Original: {photo.title}
                   </div>
                   <div
                     style={{

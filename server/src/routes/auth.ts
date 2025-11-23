@@ -1,5 +1,5 @@
 import express, { Response } from "express";
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../database";
 import { User } from "../entities/User";
