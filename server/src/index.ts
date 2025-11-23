@@ -9,17 +9,29 @@ import photosRoutes from "./routes/photos";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors({
-  origin: [
-    "https://www.tc-essonnes.fr",
-    "http://localhost:3000",
-    "http://localhost:3001"
-  ],
+// Middleware CORS - AVANT tout le reste
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = [
+      "https://www.tc-essonnes.fr",
+      "http://localhost:3000",
+      "http://localhost:3001"
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Preflight pour TOUS les endpoints
 app.use(express.json());
 
 // Routes
