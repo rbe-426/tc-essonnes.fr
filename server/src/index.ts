@@ -52,6 +52,12 @@ app.use((req: any, res: any) => {
 // Démarrer le serveur
 const startServer = async () => {
   try {
+    console.log("🔧 Configuration:");
+    console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`   PORT: ${PORT}`);
+    console.log(`   DB_HOST: ${process.env.DB_HOST || "localhost"}`);
+    console.log(`   DATABASE_URL present: ${!!process.env.DATABASE_URL}`);
+    
     // Initialiser la base de données
     await AppDataSource.initialize();
     console.log("✅ Base de données connectée");
