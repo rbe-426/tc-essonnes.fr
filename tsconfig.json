@@ -35,12 +35,21 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "contexts/**/*.ts",
+    "contexts/**/*.tsx",
+    "lib/**/*.ts",
+    "content/**/*.ts",
+    "styles/**/*",
     ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "server"
+    "server",
+    ".next",
+    "dist"
   ]
 }
