@@ -1,7 +1,7 @@
 // app/page.tsx
 import "../styles/home.css";
 import AnecdoteCard from "../components/AnecdoteCard";
-import PhotoOfMonth from "../components/PhotoOfMonth";
+import WeeklyPhoto from "../components/WeeklyPhoto";
 
 import { getLatestPhotos } from "../lib/getLatestPhotos";
 import LatestAdditions from "../components/LatestAdditions";
@@ -36,7 +36,7 @@ export default function HomePage() {
         {/* COLONNE DROITE */}
         <div className="home-side">
           <AnecdoteCard />
-          <PhotoOfMonth />
+          <WeeklyPhoto />
         </div>
       </div>
     </section>
