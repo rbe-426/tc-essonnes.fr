@@ -19,7 +19,7 @@ export function EditProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setIsEditMode(false);
     setIsAuthenticated(false);
-    localStorage.removeItem("editToken");
+    localStorage.removeItem("authToken");
   };
 
   return (

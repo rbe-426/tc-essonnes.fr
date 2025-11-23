@@ -1,6 +1,5 @@
 // lib/weeklyPhoto.ts
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { api } from "./api";
 
 export interface WeeklyPhoto {
   src: string;
@@ -33,38 +32,21 @@ export function pickWeeklyPhoto(photos: WeeklyPhoto[], d = new Date()): WeeklyPh
 }
 
 /**
- * Récupère toutes les photos disponibles des réseaux (côté serveur)
+ * Récupère toutes les photos disponibles des réseaux via l'API
  */
 export async function getAllNetworkPhotos(): Promise<WeeklyPhoto[]> {
   try {
-    const networks = [
-      { slug: "tisse", folder: "tisse" },
-      { slug: "transdev-coeur-essonne", folder: "transdev-coeur-essonne" },
-      { slug: "transdev-senart", folder: "transdev-senart" },
-      { slug: "retrobus-essonne", folder: "retrobus-essonne" },
-      { slug: "rer", folder: "rer" },
-      { slug: "ratp", folder: "ratp" },
-      { slug: "ratp_cap_saclay", folder: "ratp_cap_saclay" },
-      { slug: "kvyvs", folder: "kvyvs" },
-      { slug: "nav_rerd", folder: "nav_rerd" },
-      { slug: "reseau-ksvm", folder: "reseau-ksvm" },
-      { slug: "cars-soeur", folder: "cars-soeur" },
-    ];
+    // Récupérer tous les réseaux
+    const networksData = await api.networks.getAll();
+    const networks = networksData.networks;
 
     const allPhotos: WeeklyPhoto[] = [];
 
+    // Pour chaque réseau, récupérer les photos
     for (const network of networks) {
       try {
-        const photosPath = join(
-          process.cwd(),
-          "public",
-          "photos",
-          network.folder,
-          "photos.json"
-        );
-
-        const fileContent = await readFile(photosPath, "utf-8");
-        const photos = JSON.parse(fileContent);
+        const photosData = await api.photos.getByNetwork(network.slug);
+        const photos = photosData.photos;
 
         if (Array.isArray(photos)) {
           for (const photo of photos) {
@@ -73,7 +55,7 @@ export async function getAllNetworkPhotos(): Promise<WeeklyPhoto[]> {
               title: photo.title,
               href: `/gallery/network/${network.slug}`,
               credit: photo.desc || undefined,
-              folder: network.folder,
+              folder: network.slug,
             });
           }
         }

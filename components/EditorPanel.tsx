@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useEditContext } from "@/contexts/EditContext";
+import { api } from "@/lib/api";
 
 interface Photo {
   id: string;
@@ -34,8 +35,7 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
     if (!folder) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/photos/save?folder=${folder}`);
-      const data = await response.json();
+      const data = await api.photos.getByNetwork(folder);
       if (data.success) {
         setPhotos(data.photos);
       }
@@ -50,20 +50,20 @@ export default function EditorPanel({ folder }: EditorPanelProps) {
     if (!folder) return;
     setSaving(true);
     try {
-      const response = await fetch("/api/photos/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder, photos }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMessage("Photos sauvegardées avec succès");
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Erreur lors de la sauvegarde");
+      // Sauvegarder chaque photo modifiée
+      for (const photo of photos) {
+        await api.photos.update(folder, photo.id, {
+          title: photo.title,
+          img: photo.img,
+          date: photo.date,
+          desc: photo.desc,
+        });
       }
+      setMessage("Photos sauvegardées avec succès");
+      setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      setMessage("Erreur de connexion au serveur");
+      console.error("Erreur lors de la sauvegarde:", error);
+      setMessage("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
     }

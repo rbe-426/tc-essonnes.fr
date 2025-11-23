@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEditContext } from "@/contexts/EditContext";
+import { api } from "@/lib/api";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -21,16 +22,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, password }),
-      });
-
-      const data = await response.json();
+      const data = await api.auth.login(id, password);
 
       if (data.success) {
-        localStorage.setItem("editToken", data.token);
+        localStorage.setItem("authToken", data.token);
         setIsAuthenticated(true);
         setIsEditMode(true);
         setId("");
@@ -41,6 +36,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       }
     } catch (err) {
       setError("Erreur de connexion");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

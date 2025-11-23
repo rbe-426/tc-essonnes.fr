@@ -1,0 +1,7 @@
+server/
+server/**/*
+.env
+.env.local
+.env.*.local
+dist/
+build/
