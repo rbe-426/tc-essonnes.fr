@@ -1,5 +1,5 @@
 import express, { Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../database";
 import { User } from "../entities/User";
@@ -8,7 +8,7 @@ import { AuthRequest, authMiddleware } from "../middleware/auth";
 const router = express.Router();
 const userRepository = AppDataSource.getRepository(User);
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: any, res: any) => {
   try {
     const { username, password } = req.body;
 
@@ -28,8 +28,8 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET || "secret-key",
-      { expiresIn: process.env.JWT_EXPIRATION || "7d" }
+      (process.env.JWT_SECRET || "secret-key") as string,
+      { expiresIn: process.env.JWT_EXPIRATION || "7d" } as any
     );
 
     return res.json({
@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/me", authMiddleware, async (req: AuthRequest, res) => {
+router.get("/me", authMiddleware, async (req: AuthRequest, res: any) => {
   try {
     const user = await userRepository.findOne({ where: { id: req.user?.id } });
 
@@ -68,7 +68,7 @@ router.get("/me", authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/logout", authMiddleware, (req: AuthRequest, res) => {
+router.post("/logout", authMiddleware, (req: AuthRequest, res: any) => {
   // JWT stateless, pas besoin de faire grand chose
   return res.json({ success: true, message: "Déconnecté" });
 });

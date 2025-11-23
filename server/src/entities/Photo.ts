@@ -7,7 +7,10 @@ export class Photo {
   id: string;
 
   @Column()
-  title: string;
+  title: string; // Titre original (pour détecter les doublons)
+
+  @Column({ nullable: true })
+  displayTitle: string; // Titre affichable (modifiable)
 
   @Column()
   img: string;
@@ -16,7 +19,10 @@ export class Photo {
   date: string;
 
   @Column({ nullable: true, type: "text" })
-  desc: string;
+  desc: string; // Description originale
+
+  @Column({ nullable: true, type: "text" })
+  displayDesc: string; // Description affichable (modifiable)
 
   @Column({ type: "integer", default: 0 })
   order: number;

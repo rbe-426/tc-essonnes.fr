@@ -2,7 +2,7 @@ import express from "express";
 import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
-import { authMiddleware, AdminRequest } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 const photoRepository = AppDataSource.getRepository(Photo);
@@ -23,7 +23,14 @@ router.get("/:networkSlug", async (req: any, res: any) => {
       order: { order: "ASC" },
     });
 
-    return res.json({ success: true, photos, network });
+    // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
+    const mappedPhotos = photos.map((p: Photo) => ({
+      ...p,
+      displayTitle: p.displayTitle || p.title,
+      displayDesc: p.displayDesc || p.desc,
+    }));
+
+    return res.json({ success: true, photos: mappedPhotos, network });
   } catch (error) {
     console.error("Erreur GET photos:", error);
     return res.status(500).json({ success: false, message: "Erreur serveur" });
@@ -93,7 +100,7 @@ router.post("/:networkSlug", authMiddleware, async (req: any, res: any) => {
 router.put("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
-    const { title, img, date, desc, order } = req.body;
+    const { displayTitle, displayDesc, date, order } = req.body;
 
     const photo = await photoRepository.findOne({
       where: { id: photoId },
@@ -104,15 +111,22 @@ router.put("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) 
       return res.status(404).json({ success: false, message: "Photo non trouvée" });
     }
 
-    if (title) photo.title = title;
-    if (img) photo.img = img;
+    // Mettre à jour uniquement les champs affichables
+    if (displayTitle !== undefined) photo.displayTitle = displayTitle;
+    if (displayDesc !== undefined) photo.displayDesc = displayDesc;
     if (date !== undefined) photo.date = date;
-    if (desc !== undefined) photo.desc = desc;
     if (order !== undefined) photo.order = order;
 
     await photoRepository.save(photo);
 
-    return res.json({ success: true, photo });
+    // Retourner avec les champs affichables
+    const response = {
+      ...photo,
+      displayTitle: photo.displayTitle || photo.title,
+      displayDesc: photo.displayDesc || photo.desc,
+    };
+
+    return res.json({ success: true, photo: response });
   } catch (error) {
     console.error("Erreur PUT photo:", error);
     return res.status(500).json({ success: false, message: "Erreur serveur" });

@@ -19,12 +19,12 @@ app.use("/api/networks", networksRoutes);
 app.use("/api/photos", photosRoutes);
 
 // Health check
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (req: any, res: any) => {
   res.json({ success: true, message: "Serveur ok" });
 });
 
 // Erreur 404
-app.use((req, res) => {
+app.use((req: any, res: any) => {
   res.status(404).json({ success: false, message: "Route non trouvée" });
 });
 
