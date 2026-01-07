@@ -16,39 +16,75 @@ router.post("/save", (req: any, res: any) => {
       return res.status(403).json({ success: false, message: "Non autorisé" });
     }
 
-    const { folder, filename, title, description } = req.body;
+    const { folder, src, title, description } = req.body;
 
-    if (!folder || !filename) {
+    if (!folder || !src) {
       return res
         .status(400)
         .json({ success: false, message: "Données manquantes" });
     }
 
-    // Construire le chemin du fichier JSON
+    // Construire le chemin du dossier photos
     const photosDir = path.join(process.cwd(), "public", "photos", folder);
-    const basename = path.basename(filename, path.extname(filename));
-    const jsonFilePath = path.join(photosDir, `${basename}.json`);
+    const photosJsonPath = path.join(photosDir, "photos.json");
 
     // Créer le répertoire s'il n'existe pas
     if (!fs.existsSync(photosDir)) {
       fs.mkdirSync(photosDir, { recursive: true });
     }
 
-    // Créer ou mettre à jour le fichier JSON
-    const photoData = {
-      title: title || basename,
-      description: description || "",
-      src: filename,
+    // Lire le fichier photos.json existant ou en créer un nouveau
+    let photosData: any[] = [];
+
+    if (fs.existsSync(photosJsonPath)) {
+      try {
+        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8"));
+        photosData = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
+      } catch (err) {
+        console.error("Erreur lecture photos.json:", err);
+        photosData = [];
+      }
+    }
+
+    // Trouver ou créer l'entry pour cette photo
+    const existingIndex = photosData.findIndex(
+      (p: any) => (typeof p === "string" ? p : p?.src) === src
+    );
+
+    const photoEntry = {
+      src,
+      title: title || undefined,
+      description: description || undefined,
     };
 
-    fs.writeFileSync(jsonFilePath, JSON.stringify(photoData, null, 2), "utf8");
+    // Nettoyer les champs vides
+    Object.keys(photoEntry).forEach(
+      (key) =>
+        photoEntry[key as keyof typeof photoEntry] === undefined &&
+        delete photoEntry[key as keyof typeof photoEntry]
+    );
 
-    console.log(`✅ Photo sauvegardée: ${jsonFilePath}`);
+    if (existingIndex >= 0) {
+      // Mettre à jour la photo existante
+      photosData[existingIndex] = photoEntry;
+    } else {
+      // Ajouter une nouvelle photo
+      photosData.push(photoEntry);
+    }
+
+    // Sauvegarder le fichier photos.json
+    fs.writeFileSync(
+      photosJsonPath,
+      JSON.stringify({ photos: photosData }, null, 2),
+      "utf8"
+    );
+
+    console.log(`✅ photos.json mis à jour: ${photosJsonPath}`);
 
     return res.json({
       success: true,
       message: "Photo sauvegardée avec succès",
-      file: jsonFilePath,
+      file: photosJsonPath,
     });
   } catch (error) {
     console.error("Erreur lors de la sauvegarde:", error);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getServerUrl } from "@/lib/serverUrl";
 
 interface Photo {
   src?: string;
@@ -36,16 +37,18 @@ export default function PhotoEditModal({
       try {
         // Extraire le nom de fichier du src
         const filename = editPhoto.src?.split("/").pop() || "";
-        const folder = editPhoto.src?.split("/").slice(-2, -1)[0] || "";
+        const folderFromSrc = editPhoto.src?.split("/").slice(-2, -1)[0] || "";
+        const finalFolder = folder || folderFromSrc;
 
-        if (filename && folder) {
+        if (filename && finalFolder) {
+          const serverUrl = getServerUrl();
           // Appeler l'API pour sauvegarder
-          const response = await fetch("/api/local-photos/save", {
+          const response = await fetch(`${serverUrl}/api/local-photos/save`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              folder,
-              filename,
+              folder: finalFolder,
+              src: editPhoto.src,
               title: editPhoto.title,
               description: editPhoto.description,
             }),
