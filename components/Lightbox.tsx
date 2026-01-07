@@ -40,7 +40,17 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
         {/* Colonne image (contain → aucune coupe) */}
         <div className="lb-left">
-          <img src={it.src} alt={it.title || ""} />
+          <img 
+            src={it.src} 
+            alt={it.title || ""} 
+            loading="eager"
+            decoding="async"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+            }}
+          />
           <button className="lb-nav lb-prev" onClick={prev} aria-label="Précédent">❮</button>
           <button className="lb-nav lb-next" onClick={next} aria-label="Suivant">❯</button>
         </div>

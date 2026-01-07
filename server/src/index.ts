@@ -1,13 +1,18 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import { AppDataSource } from "./database";
 import authRoutes from "./routes/auth";
 import networksRoutes from "./routes/networks";
 import photosRoutes from "./routes/photos";
+import localPhotosRoutes from "./routes/localPhotos";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Middleware de compression gzip - AVANT tout le reste
+app.use(compression());
 
 // Middleware CORS - AVANT tout le reste
 const corsOptions = {
@@ -32,12 +37,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions)); // Preflight pour TOUS les endpoints
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/networks", networksRoutes);
 app.use("/api/photos", photosRoutes);
+app.use("/api/local-photos", localPhotosRoutes);
 
 // Health check
 app.get("/api/health", (req: any, res: any) => {

@@ -386,3 +386,17 @@ body > main{ padding-top: 8px !important; }
   z-index: 0; /* derrière le contenu */
 }
 .home-grid, .home-left, .home-side{ position: relative; z-index: 1; }
+/* Discord Widget */
+.discord-widget-wrap{
+  margin-top: 16px;
+  padding: 0 16px;
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+.discord-widget-wrap iframe{
+  border-radius: 8px;
+  width: 100%;
+  display: block;
+}

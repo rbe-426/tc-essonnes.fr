@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 // Chemin: [slug]/page.tsx → ../ (network) ../ (gallery) ../ (app) ../ (root) puis content/networks
 import { networks } from "../../../../content/networks";
 import PhotoGrid from "../../../../components/PhotoGrid";
+import NetworkPageClient from "./client";
 
 export const runtime = "nodejs";
 const VALID_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
@@ -95,16 +96,7 @@ export default function NetworkPage({ params }: { params: { slug: string } }) {
         <Link href="/gallery">← Retour aux réseaux</Link>
       </nav>
 
-      <h1 style={{ margin: 0 }}>{net.name}</h1>
-      <p className="net-desc">Cliquez une vignette pour l’agrandir avec son titre et sa description.</p>
-
-      {photos.length === 0 ? (
-        <div style={{ marginTop: 16, opacity: 0.8 }}>
-          Aucune photo trouvée dans <code>public/photos/{folder}</code>.
-        </div>
-      ) : (
-        <PhotoGrid items={photos} />
-      )}
+      <NetworkPageClient networkName={net.name} photos={photos} />
     </section>
   );
 }

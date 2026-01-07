@@ -2,6 +2,7 @@
 import "../styles/home.css";
 import AnecdoteCard from "../components/AnecdoteCard";
 import WeeklyPhoto from "../components/WeeklyPhoto";
+import { DiscordWidget } from "../components/PhotoOfMonth";
 
 import { getLatestPhotos } from "../lib/getLatestPhotos";
 import LatestAdditions from "../components/LatestAdditions";
@@ -26,7 +27,7 @@ export default function HomePage() {
 
           <section className="bubble tce-latest-card">
             <header className="bubble-head tce-latest-head">
-              <img src="/icons/ok.svg" alt="" className="tce-latest-icon" />
+              <img src="/icons/icon-ok.png" alt="" className="tce-latest-icon" />
               <h3>Les derniers ajouts</h3>
             </header>
             <LatestAdditions items={latest} initial={5} />
@@ -37,6 +38,7 @@ export default function HomePage() {
         <div className="home-side">
           <AnecdoteCard />
           <WeeklyPhoto />
+          <DiscordWidget />
         </div>
       </div>
     </section>
