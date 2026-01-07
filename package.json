@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run server:build && next build",
     "start": "next start",
     "lint": "next lint",
     "server:dev": "cd server && npm run dev",
-    "server:build": "cd server && npm run build",
+    "server:build": "cd server && npm install && npm run build",
     "server:start": "cd server && npm run start"
   },
   "dependencies": {
