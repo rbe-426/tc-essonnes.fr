@@ -53,6 +53,10 @@ export default function PhotoEditModal({
 
           if (response.ok) {
             console.log("✅ Photo sauvegardée avec succès");
+            // Recharger la page après 500ms pour appliquer les changements
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
           } else {
             console.error("Erreur lors de la sauvegarde");
           }
