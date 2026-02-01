@@ -103,12 +103,30 @@
 .lb-left{ background:#0b0d10; display:grid; place-items:center; min-height: 60vh; }
 .lb-left img{ max-width:100%; max-height:100%; object-fit:contain; }
 
-.lb-right{ padding:22px 18px; overflow:auto; }
+.lb-right{ 
+  padding:22px 18px; 
+  overflow:auto;
+  background: #121418;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 60vh;
+}
 .lb-title{
   font-family: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-  font-weight: 500; font-size: 28px; margin: 4px 0 10px; color:#fff;
+  font-weight: 600; 
+  font-size: 24px; 
+  margin: 0;
+  color:#fff;
+  line-height: 1.2;
 }
-.lb-desc{ opacity:.92; line-height:1.6; font-size:1.05rem; color:rgba(255,255,255,.9); }
+.lb-desc{ 
+  opacity:.92; 
+  line-height:1.6; 
+  font-size:1rem; 
+  color:rgba(255,255,255,.85);
+  margin: 0;
+}
 
 .lb-x,
 .lb-nav{
