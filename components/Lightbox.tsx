@@ -32,6 +32,14 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
   if (!open || !items.length) return null;
   const it = items[idx];
+  
+  console.log("🔍 Lightbox item:", {
+    src: it.src,
+    title: it.title,
+    description: it.description,
+    hasTitle: !!it.title,
+    hasDesc: !!it.description
+  });
 
   return (
     <div className="lb-backdrop" onClick={close} role="dialog" aria-modal="true">
