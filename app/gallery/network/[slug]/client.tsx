@@ -2,6 +2,7 @@
 
 import { useEditContext } from "@/contexts/EditContext";
 import PhotoGrid from "../../../../components/PhotoGrid";
+import ImportPhotosModal from "../../../../components/ImportPhotosModal";
 import { useState } from "react";
 
 type PhotoItem = { src: string; title?: string; description?: string };
@@ -17,6 +18,8 @@ export default function NetworkPageClient({
 }: NetworkPageClientProps) {
   const { isEditMode, setIsEditMode } = useEditContext();
   const [isUploading, setIsUploading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadedPhotos, setUploadedPhotos] = useState<PhotoItem[]>([]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
@@ -36,8 +39,9 @@ export default function NetworkPageClient({
       });
 
       if (response.ok) {
-        alert("Photos importées avec succès!");
-        window.location.reload();
+        const data = await response.json();
+        setUploadedPhotos(data.photos || []);
+        setIsModalOpen(true);
       } else {
         alert("Erreur lors de l'import des photos");
       }
@@ -137,6 +141,17 @@ export default function NetworkPageClient({
       ) : (
         <PhotoGrid items={photos} />
       )}
+
+      <ImportPhotosModal
+        isOpen={isModalOpen}
+        photos={uploadedPhotos}
+        folder={networkName}
+        onClose={() => {
+          setIsModalOpen(false);
+          window.location.reload();
+        }}
+        onSave={() => window.location.reload()}
+      />
     </>
   );
 }

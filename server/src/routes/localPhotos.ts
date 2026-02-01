@@ -94,4 +94,89 @@ router.post("/save", (req: any, res: any) => {
   }
 });
 
+/**
+ * POST /api/local-photos/save-batch
+ * Sauvegarde plusieurs photos à la fois (pour l'import)
+ */
+router.post("/save-batch", (req: any, res: any) => {
+  try {
+    // Vérifier que c'est localhost
+    const host = req.hostname || req.headers.host || "";
+    if (!host.includes("localhost") && !host.includes("127.0.0.1")) {
+      return res.status(403).json({ success: false, message: "Non autorisé" });
+    }
+
+    const { folder, photos } = req.body;
+
+    if (!folder || !Array.isArray(photos)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Données manquantes ou invalides" });
+    }
+
+    // Construire le chemin du dossier photos
+    const photosDir = path.join(process.cwd(), "public", "photos", folder);
+    const photosJsonPath = path.join(photosDir, "photos.json");
+
+    // Créer le répertoire s'il n'existe pas
+    if (!fs.existsSync(photosDir)) {
+      fs.mkdirSync(photosDir, { recursive: true });
+    }
+
+    // Lire le fichier photos.json existant ou en créer un nouveau
+    let photosData: any[] = [];
+
+    if (fs.existsSync(photosJsonPath)) {
+      try {
+        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8"));
+        photosData = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
+      } catch (err) {
+        console.error("Erreur lecture photos.json:", err);
+        photosData = [];
+      }
+    }
+
+    // Ajouter les nouvelles photos
+    photos.forEach((newPhoto: any) => {
+      const { src, title, description } = newPhoto;
+      
+      // Vérifier si la photo existe déjà
+      const existingIndex = photosData.findIndex(
+        (p: any) => (typeof p === "string" ? p : p?.src) === src
+      );
+
+      const photoEntry: any = { src };
+      if (title) photoEntry.title = title;
+      if (description) photoEntry.description = description;
+
+      if (existingIndex >= 0) {
+        photosData[existingIndex] = photoEntry;
+      } else {
+        photosData.push(photoEntry);
+      }
+    });
+
+    // Sauvegarder le fichier photos.json
+    fs.writeFileSync(
+      photosJsonPath,
+      JSON.stringify({ photos: photosData }, null, 2),
+      "utf8"
+    );
+
+    console.log(`✅ photos.json mis à jour avec ${photos.length} photo(s): ${photosJsonPath}`);
+
+    return res.json({
+      success: true,
+      message: `${photos.length} photo(s) sauvegardée(s) avec succès`,
+      file: photosJsonPath,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la sauvegarde batch:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Erreur serveur", error: String(error) });
+  }
+});
+
 export default router;
+
