@@ -23,9 +23,13 @@ function readSidecarJson(filePath: string): Partial<PhotoItem> {
 
 // ← NORMALISE n'importe quel src pour ne garder QUE le nom de fichier
 function cleanSrc(folder: string, src: string) {
-  let s = String(src || "").replace(/^\.?\//, "");             // ./foo.jpg → foo.jpg ; /foo.jpg → foo.jpg
-  s = s.replace(new RegExp(`^/?photos/${folder}/`, "i"), "");  // photos/rer/foo.jpg ou /photos/rer/foo.jpg → foo.jpg
-  s = s.replace(new RegExp(`^${folder}/`, "i"), "");           // rer/foo.jpg → foo.jpg
+  let s = String(src || "");
+  // Remove leading slashes and ./ 
+  s = s.replace(/^\.?\/+/, "");
+  // Remove /photos/folder/ prefix (case-insensitive)
+  s = s.replace(new RegExp(`^/?photos/${folder}/`, "i"), "");
+  // Remove folder/ prefix
+  s = s.replace(new RegExp(`^${folder}/`, "i"), "");
   return s;
 }
 
