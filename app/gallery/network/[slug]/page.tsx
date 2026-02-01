@@ -38,23 +38,18 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
     try {
       const raw = JSON.parse(fs.readFileSync(manifest, "utf8"));
       const arr: any[] = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
-      console.log("✅ Lisant photos.json, trouvé", arr.length, "photos");
-      const result = arr
+      return arr
         .map((p) => (typeof p === "string" ? { src: p } : p))
         .filter((p) => typeof p?.src === "string")
         .map((p) => {
           const file = cleanSrc(folder, p.src);
-          console.log("  cleanSrc(", p.src, ") →", file);
           return {
             src: path.posix.join("/photos", folder, file),
             title: p.title,
             description: p.description,
           };
         });
-      console.log("📸 Retournant:", JSON.stringify(result, null, 2));
-      return result;
     } catch (err) {
-      console.error("❌ Erreur lecture photos.json:", err);
       /* fallback scan */
     }
   }
@@ -96,8 +91,6 @@ export default function NetworkPage({ params }: { params: { slug: string } }) {
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
   const photos = readPhotosFromFolder(folder);
-  
-  console.log("📸 Photos chargées pour", folder, ":", JSON.stringify(photos, null, 2));
 
   return (
     <section className="gallery-wrap network-page">

@@ -21,8 +21,6 @@ export default function NetworkPageClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadedPhotos, setUploadedPhotos] = useState<PhotoItem[]>([]);
 
-  console.log("🌐 NetworkPageClient received photos:", JSON.stringify(photos, null, 2));
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     if (!files || files.length === 0) return;
