@@ -1,24 +1,5 @@
-{
+﻿{
     "photos":  [
-                   {
-                       "src":  "_DSC0095.jpg",
-                       "title":  "",
-                       "description":  ""
-                   },
-                   {
-                       "src":  "_DSC0096.jpg",
-                       "title":  "",
-                       "description":  ""
-                   },
-                   {
-                       "src":  "_DSC0097.jpg",
-                       "title":  "",
-                       "description":  ""
-                   },
-                   {
-                       "src":  "IMG_0635.jpg",
-                       "title":  "",
-                       "description":  ""
-                   }
+
                ]
 }
