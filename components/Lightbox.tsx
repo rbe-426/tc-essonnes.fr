@@ -65,8 +65,14 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
         {/* Colonne texte à droite */}
         <aside className="lb-right">
+          <div style={{ color: "#fff", fontSize: "12px", marginBottom: "10px" }}>
+            {it.title ? "✅ Titre trouvé" : "❌ Pas de titre"}
+          </div>
           {it.title && <div className="lb-title">{it.title}</div>}
           {it.description && <div className="lb-desc">{it.description}</div>}
+          {!it.title && !it.description && (
+            <div style={{ color: "#999", fontSize: "13px" }}>Aucun titre ni description</div>
+          )}
         </aside>
       </div>
     </div>

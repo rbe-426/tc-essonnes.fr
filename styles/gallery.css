@@ -106,11 +106,14 @@
 .lb-right{ 
   padding:22px 18px; 
   overflow:auto;
-  background: #121418;
+  background: #1a1d22;
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-height: 60vh;
+  border-left: 2px solid rgba(255,255,255,.1);
+  word-wrap: break-word;
+  white-space: normal;
 }
 .lb-title{
   font-family: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
@@ -119,6 +122,10 @@
   margin: 0;
   color:#fff;
   line-height: 1.3;
+  word-wrap: break-word;
+  white-space: normal;
+  display: block;
+  visibility: visible;
 }
 .lb-desc{ 
   opacity:.92; 
@@ -126,6 +133,10 @@
   font-size:13px; 
   color:rgba(255,255,255,.85);
   margin: 0;
+  word-wrap: break-word;
+  white-space: normal;
+  display: block;
+  visibility: visible;
 }
 
 .lb-x,
