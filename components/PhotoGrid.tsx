@@ -27,6 +27,8 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<Item | null>(null);
 
+  console.log("📷 PhotoGrid received items:", JSON.stringify(items, null, 2));
+
   // Tri automatique par numéro en début de titre
   const sortedItems = [...items].sort((a, b) => {
     const titleA = a.title || fileTitleFallback(a.src);
