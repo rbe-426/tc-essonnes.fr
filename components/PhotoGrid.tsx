@@ -44,12 +44,18 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
     setSelectedPhoto(photo);
   };
 
-  const handleEdit = () => {
-    if (selectedPhoto) {
-      setEditingPhoto(selectedPhoto);
-      setIsModalOpen(true);
-      setContextMenu(null);
+  const handleDelete = (e: React.MouseEvent, photo: Item) => {
+    e.stopPropagation();
+    if (confirm(`Supprimer "${photo.title || 'cette photo'}"?`)) {
+      // TODO: appel API pour supprimer la photo
+      console.log("Supprimer:", photo);
     }
+  };
+
+  const handleEditButton = (e: React.MouseEvent, photo: Item) => {
+    e.stopPropagation();
+    setEditingPhoto(photo);
+    setIsModalOpen(true);
   };
 
   const handleSavePhoto = (updatedPhoto: Item) => {
@@ -101,7 +107,9 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
 
                 {isEditMode && (
                   <>
-                    <div
+                    <button
+                      type="button"
+                      onClick={(e) => handleDelete(e, p)}
                       style={{
                         position: "absolute",
                         bottom: 8,
@@ -113,13 +121,18 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
                         fontSize: "0.7rem",
                         fontWeight: "600",
                         color: "#F44336",
-                        pointerEvents: "none",
+                        cursor: "pointer",
                         opacity: 0.7,
+                        transition: "opacity 0.2s",
                       }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
                     >
                       🗑️ Supprimer
-                    </div>
-                    <div
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleEditButton(e, p)}
                       style={{
                         position: "absolute",
                         bottom: 8,
@@ -131,12 +144,15 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
                         fontSize: "0.7rem",
                         fontWeight: "600",
                         color: "#4CAF50",
-                        pointerEvents: "none",
+                        cursor: "pointer",
                         opacity: 0.7,
+                        transition: "opacity 0.2s",
                       }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
                     >
                       ✏️ Éditer
-                    </div>
+                    </button>
                   </>
                 )}
               </button>
