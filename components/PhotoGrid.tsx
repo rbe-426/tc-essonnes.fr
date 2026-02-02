@@ -100,24 +100,44 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
                 </div>
 
                 {isEditMode && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 8,
-                      right: 8,
-                      background: "rgba(76, 175, 80, 0.2)",
-                      border: "1px solid #4CAF50",
-                      borderRadius: "4px",
-                      padding: "2px 6px",
-                      fontSize: "0.7rem",
-                      fontWeight: "600",
-                      color: "#4CAF50",
-                      pointerEvents: "none",
-                      opacity: 0.7,
-                    }}
-                  >
-                    ✏️ Éditer
-                  </div>
+                  <>
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 8,
+                        left: 8,
+                        background: "rgba(244, 67, 54, 0.2)",
+                        border: "1px solid #F44336",
+                        borderRadius: "4px",
+                        padding: "2px 6px",
+                        fontSize: "0.7rem",
+                        fontWeight: "600",
+                        color: "#F44336",
+                        pointerEvents: "none",
+                        opacity: 0.7,
+                      }}
+                    >
+                      🗑️ Supprimer
+                    </div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 8,
+                        right: 8,
+                        background: "rgba(76, 175, 80, 0.2)",
+                        border: "1px solid #4CAF50",
+                        borderRadius: "4px",
+                        padding: "2px 6px",
+                        fontSize: "0.7rem",
+                        fontWeight: "600",
+                        color: "#4CAF50",
+                        pointerEvents: "none",
+                        opacity: 0.7,
+                      }}
+                    >
+                      ✏️ Éditer
+                    </div>
+                  </>
                 )}
               </button>
             </div>
