@@ -134,7 +134,7 @@
   color:rgba(255,255,255,.85);
   margin: 0;
   word-wrap: break-word;
-  white-space: normal;
+  white-space: pre-wrap;
   display: block;
   visibility: visible;
   font-family: system-ui, -apple-system, sans-serif;
