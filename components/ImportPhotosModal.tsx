@@ -23,6 +23,8 @@ export default function ImportPhotosModal({
   const [editedPhotos, setEditedPhotos] = useState<PhotoItem[]>(photos);
   const [isSaving, setIsSaving] = useState(false);
 
+  console.log("🎬 ImportPhotosModal - isOpen:", isOpen, "photos:", photos);
+
   if (!isOpen) return null;
 
   const handleTitleChange = (index: number, newTitle: string) => {

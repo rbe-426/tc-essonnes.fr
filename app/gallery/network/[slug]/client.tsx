@@ -40,7 +40,10 @@ export default function NetworkPageClient({
 
       if (response.ok) {
         const data = await response.json();
+        console.log("📸 Upload response:", data);
+        console.log("📸 uploadedPhotos avant:", uploadedPhotos);
         setUploadedPhotos(data.photos || []);
+        console.log("📸 uploadedPhotos après:", data.photos);
         setIsModalOpen(true);
       } else {
         alert("Erreur lors de l'import des photos");
