@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const files = formData.getAll("files") as File[];
-    const folder = formData.get("folder") as string;
+    const folder = (formData.get("folder") as string).toLowerCase();
 
     if (!files || files.length === 0 || !folder) {
       return NextResponse.json(

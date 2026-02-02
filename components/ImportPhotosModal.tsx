@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getServerUrl } from "@/lib/serverUrl";
 
 type PhotoItem = { src: string; title?: string; description?: string };
@@ -23,7 +23,10 @@ export default function ImportPhotosModal({
   const [editedPhotos, setEditedPhotos] = useState<PhotoItem[]>(photos);
   const [isSaving, setIsSaving] = useState(false);
 
-  console.log("🎬 ImportPhotosModal - isOpen:", isOpen, "photos:", photos);
+  // Mettre à jour editedPhotos quand photos change
+  useEffect(() => {
+    setEditedPhotos(photos);
+  }, [photos]);
 
   if (!isOpen) return null;
 
