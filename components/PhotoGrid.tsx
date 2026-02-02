@@ -5,6 +5,7 @@ import { useState } from "react";
 import Lightbox from "./Lightbox";
 import PhotoEditModal from "./PhotoEditModal";
 import { useEditContext } from "@/contexts/EditContext";
+import { getServerUrl } from "@/lib/serverUrl";
 
 type Item = { src: string; title?: string; description?: string };
 
@@ -20,8 +21,9 @@ function extractNumberFromTitle(title: string): number {
   return match ? parseInt(match[0], 10) : Infinity;
 }
 
-export default function PhotoGrid({ items }: { items: Item[] }) {
+export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
   const { isEditMode } = useEditContext();
+  const [items, setItems] = useState<Item[]>(initialItems);
   const [editingPhoto, setEditingPhoto] = useState<Item | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
@@ -44,11 +46,33 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
     setSelectedPhoto(photo);
   };
 
-  const handleDelete = (e: React.MouseEvent, photo: Item) => {
+  const handleDelete = async (e: React.MouseEvent, photo: Item) => {
     e.stopPropagation();
-    if (confirm(`Supprimer "${photo.title || 'cette photo'}"?`)) {
-      // TODO: appel API pour supprimer la photo
-      console.log("Supprimer:", photo);
+    const title = photo.title || fileTitleFallback(photo.src);
+    if (!confirm(`Supprimer "${title}"?`)) return;
+
+    try {
+      const networkName = window.location.pathname.split("/").pop();
+      const serverUrl = getServerUrl();
+      
+      const response = await fetch(`${serverUrl}/api/local-photos/delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder: networkName,
+          src: photo.src,
+        }),
+      });
+
+      if (response.ok) {
+        setItems(items.filter(p => p.src !== photo.src));
+        alert("Photo supprimée!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+      alert("Erreur lors de la suppression");
     }
   };
 

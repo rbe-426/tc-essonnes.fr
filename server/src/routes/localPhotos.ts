@@ -180,5 +180,78 @@ router.post("/save-batch", (req: any, res: any) => {
   }
 });
 
+/**
+ * DELETE /api/local-photos/delete
+ * Supprime une photo (localhost seulement)
+ */
+router.delete("/delete", (req: any, res: any) => {
+  try {
+    // Vérifier que c'est localhost
+    const host = req.hostname || req.headers.host || "";
+    if (!host.includes("localhost") && !host.includes("127.0.0.1")) {
+      return res.status(403).json({ success: false, message: "Non autorisé" });
+    }
+
+    const { folder, src } = req.body;
+
+    if (!folder || !src) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Données manquantes" });
+    }
+
+    // Construire le chemin du dossier photos
+    const projectRoot = path.join(process.cwd(), "..");
+    const photosDir = path.join(projectRoot, "public", "photos", folder);
+    const photosJsonPath = path.join(photosDir, "photos.json");
+    const imagePath = path.join(projectRoot, src);
+
+    if (!fs.existsSync(photosJsonPath)) {
+      return res.status(404).json({ success: false, message: "Fichier photos.json non trouvé" });
+    }
+
+    // Lire le fichier photos.json
+    let photosData: any[] = [];
+    try {
+      const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8").replace(/^\uFEFF/, ''));
+      photosData = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
+    } catch (err) {
+      return res.status(500).json({ success: false, message: "Erreur lecture photos.json" });
+    }
+
+    // Supprimer la photo du tableau
+    const initialLength = photosData.length;
+    photosData = photosData.filter((p: any) => (typeof p === "string" ? p : p?.src) !== src);
+
+    if (photosData.length === initialLength) {
+      return res.status(404).json({ success: false, message: "Photo non trouvée" });
+    }
+
+    // Sauvegarder le fichier photos.json
+    fs.writeFileSync(
+      photosJsonPath,
+      JSON.stringify({ photos: photosData }, null, 2),
+      "utf8"
+    );
+
+    // Supprimer le fichier image s'il existe
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    console.log(`✅ Photo supprimée: ${src}`);
+
+    return res.json({
+      success: true,
+      message: "Photo supprimée avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Erreur serveur", error: String(error) });
+  }
+});
+
 export default router;
 
