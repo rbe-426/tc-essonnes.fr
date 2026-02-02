@@ -24,8 +24,9 @@ router.post("/save", (req: any, res: any) => {
         .json({ success: false, message: "Données manquantes" });
     }
 
-    // Construire le chemin du dossier photos
-    const photosDir = path.join(process.cwd(), "public", "photos", folder);
+    // Construire le chemin du dossier photos (à la racine du projet, pas dans server/)
+    const projectRoot = path.join(process.cwd(), "..");
+    const photosDir = path.join(projectRoot, "public", "photos", folder);
     const photosJsonPath = path.join(photosDir, "photos.json");
 
     // Créer le répertoire s'il n'existe pas
@@ -38,7 +39,7 @@ router.post("/save", (req: any, res: any) => {
 
     if (fs.existsSync(photosJsonPath)) {
       try {
-        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8"));
+        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8").replace(/^\uFEFF/, ''));
         photosData = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
       } catch (err) {
         console.error("Erreur lecture photos.json:", err);
@@ -114,8 +115,9 @@ router.post("/save-batch", (req: any, res: any) => {
         .json({ success: false, message: "Données manquantes ou invalides" });
     }
 
-    // Construire le chemin du dossier photos
-    const photosDir = path.join(process.cwd(), "public", "photos", folder);
+    // Construire le chemin du dossier photos (à la racine du projet, pas dans server/)
+    const projectRoot = path.join(process.cwd(), "..");
+    const photosDir = path.join(projectRoot, "public", "photos", folder);
     const photosJsonPath = path.join(photosDir, "photos.json");
 
     // Créer le répertoire s'il n'existe pas
@@ -128,7 +130,7 @@ router.post("/save-batch", (req: any, res: any) => {
 
     if (fs.existsSync(photosJsonPath)) {
       try {
-        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8"));
+        const raw = JSON.parse(fs.readFileSync(photosJsonPath, "utf8").replace(/^\uFEFF/, ''));
         photosData = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
       } catch (err) {
         console.error("Erreur lecture photos.json:", err);
