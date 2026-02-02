@@ -97,9 +97,6 @@ export default function PhotoGrid({ items }: { items: Item[] }) {
 
                 <div className="photo-meta">
                   {title ? <div className="photo-title">{title}</div> : null}
-                  {p.description ? (
-                    <div className="photo-desc">{p.description}</div>
-                  ) : null}
                 </div>
 
                 {isEditMode && (

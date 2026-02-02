@@ -35,8 +35,10 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
   const manifest = path.join(dir, "photos.json");
   if (fs.existsSync(manifest)) {
     try {
-      const raw = JSON.parse(fs.readFileSync(manifest, "utf8"));
+      const content = fs.readFileSync(manifest, "utf8").replace(/^\uFEFF/, '');
+      const raw = JSON.parse(content);
       const arr: any[] = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
+      console.log("✅ Photos trouvées:", arr.length);
       return arr
         .map((p) => (typeof p === "string" ? { src: p } : p))
         .filter((p) => typeof p?.src === "string")
