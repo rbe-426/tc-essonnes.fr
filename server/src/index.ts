@@ -17,17 +17,20 @@ app.use(compression());
 // Middleware CORS - AVANT tout le reste
 const corsOptions = {
   origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    // En développement, autoriser tous les origins
-    if (process.env.NODE_ENV !== "production") {
+    // Toujours autoriser localhost en dev
+    if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      callback(null, true);
+    } else if (process.env.NODE_ENV !== "production") {
+      // En développement (non-production), autoriser tous les origins
       callback(null, true);
     } else {
-      // En production, restreindre
+      // En production stricte, restreindre
       const allowedOrigins = [
         "https://www.tc-essonnes.fr",
         "https://tc-essonnes.fr"
       ];
       
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("CORS not allowed"));
