@@ -65,16 +65,24 @@ const startServer = async () => {
     console.log(`   DB_HOST: ${process.env.DB_HOST || "localhost"}`);
     console.log(`   DATABASE_URL present: ${!!process.env.DATABASE_URL}`);
     
-    // Initialiser la base de données
-    await AppDataSource.initialize();
-    console.log("✅ Base de données connectée");
+    // Initialiser la base de données (optionnel si pas de DATABASE_URL)
+    if (process.env.DATABASE_URL) {
+      try {
+        await AppDataSource.initialize();
+        console.log("✅ Base de données connectée");
+      } catch (dbError) {
+        console.warn("⚠️ Impossible de se connecter à la BD, serveur démarrera sans DB");
+      }
+    } else {
+      console.log("⚠️ DATABASE_URL non défini, serveur démarrera sans BD");
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Serveur lancé sur le port ${PORT}`);
       console.log(`📍 http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Erreur au démarrage:", error);
+    console.error("❌ Erreur critique au démarrage:", error);
     process.exit(1);
   }
 };
