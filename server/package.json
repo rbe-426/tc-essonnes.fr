@@ -10,7 +10,8 @@
     "typeorm": "typeorm",
     "migration:generate": "typeorm migration:generate",
     "migration:run": "typeorm migration:run -d dist/database.js",
-    "migration:revert": "typeorm migration:revert"
+    "migration:revert": "typeorm migration:revert",
+    "import:photos": "ts-node src/scripts/importPhotos.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",

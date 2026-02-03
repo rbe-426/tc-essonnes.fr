@@ -8,6 +8,47 @@ const router = express.Router();
 const photoRepository = AppDataSource.getRepository(Photo);
 const networkRepository = AppDataSource.getRepository(Network);
 
+// GET latest photos pour le frontend (LatestItem format)
+router.get("/latest", async (req: any, res: any) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+
+    const photos = await photoRepository
+      .createQueryBuilder("photo")
+      .orderBy("photo.createdAt", "DESC")
+      .limit(limit)
+      .select([
+        "photo.id",
+        "photo.src",
+        "photo.title",
+        "photo.displayTitle",
+        "photo.desc",
+        "photo.displayDesc",
+        "photo.slug",
+        "photo.brand",
+        "photo.model",
+        "photo.createdAt",
+      ])
+      .getMany();
+
+    const mapped = photos.map(p => ({
+      href: `/gallery/network/${p.slug}`,
+      slug: p.slug,
+      src: p.src,
+      title: p.displayTitle || p.title || null,
+      description: p.displayDesc || p.desc || null,
+      brand: p.brand || null,
+      model: p.model || null,
+      mtime: new Date(p.createdAt).getTime(),
+    }));
+
+    return res.json({ success: true, items: mapped });
+  } catch (error) {
+    console.error("Error fetching latest photos:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+
 // GET toutes les photos d'un réseau
 router.get("/:networkSlug", async (req: any, res: any) => {
   try {
@@ -137,6 +178,8 @@ router.put("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) 
 router.delete("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
+    const fs = require("fs");
+    const path = require("path");
 
     const photo = await photoRepository.findOne({
       where: { id: photoId },
@@ -147,6 +190,20 @@ router.delete("/:networkSlug/:photoId", authMiddleware, async (req: any, res: an
       return res.status(404).json({ success: false, message: "Photo non trouvée" });
     }
 
+    // Supprimer le fichier physique
+    if (photo.src) {
+      const filePath = path.join(process.cwd(), "public", photo.src);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+          console.log(`✓ Fichier supprimé: ${filePath}`);
+        } catch (err) {
+          console.error("Erreur suppression fichier:", err);
+        }
+      }
+    }
+
+    // Supprimer de la DB
     await photoRepository.remove(photo);
 
     return res.json({ success: true, message: "Photo supprimée" });

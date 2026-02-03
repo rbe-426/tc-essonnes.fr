@@ -15,6 +15,18 @@ export class Photo {
   @Column()
   img: string;
 
+  @Column()
+  src: string; // Chemin complet: /photos/folder/filename.jpg
+
+  @Column()
+  slug: string; // Folder name (ratp, rer, etc.)
+
+  @Column({ nullable: true })
+  brand: string; // Marque du bus
+
+  @Column({ nullable: true })
+  model: string; // Modèle du bus
+
   @Column({ nullable: true })
   date: string;
 
