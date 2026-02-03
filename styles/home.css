@@ -400,3 +400,201 @@ body > main{ padding-top: 8px !important; }
   width: 100%;
   display: block;
 }
+
+/* ========== ACCUEIL TEST - Nouvelles sections ========== */
+
+/* Hero Section */
+.hero-section{
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  padding: 32px;
+}
+.hero-section h2{
+  font-size: 1.75rem;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+.hero-section p{
+  margin: 0 0 20px 0;
+  opacity: 0.85;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+.cta-button{
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  border-radius: 8px;
+  color: #4CAF50;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.cta-button:hover{
+  background: rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Stats */
+.stats-section{
+  padding: 24px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.stats-section h3{
+  margin: 0 0 18px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.stats-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.stat-item{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.stat-number{
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4CAF50;
+}
+.stat-label{
+  font-size: 0.8rem;
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Latest Grid Petit */
+.latest-grid-small{
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Réseaux en vedette */
+.featured-networks{
+  padding: 20px;
+}
+.featured-networks h3{
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+}
+.networks-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.network-link{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.network-link:hover{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.15);
+  transform: translateX(4px);
+}
+.network-icon{
+  font-size: 1.5rem;
+}
+.network-name{
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.network-count{
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+/* Spotlight */
+.spotlight-section{
+  padding: 20px;
+}
+.spotlight-section h3{
+  margin: 0 0 14px 0;
+  font-size: 1.1rem;
+}
+.spotlight-item{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.spotlight-img{
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.spotlight-info h4{
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.spotlight-network{
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Raccourcis */
+.shortcuts-section{
+  padding: 20px;
+}
+.shortcuts-section h3{
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+.shortcuts-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.shortcuts-list a{
+  display: block;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.shortcuts-list a:hover{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.15);
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .stats-grid{
+    grid-template-columns: 1fr 1fr;
+  }
+  .latest-grid-small{
+    grid-template-columns: 1fr;
+  }
+}
