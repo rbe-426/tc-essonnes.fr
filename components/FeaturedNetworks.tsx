@@ -1,7 +1,6 @@
 "use client";
 
 import { networks } from "@/content/networks";
-import { readPhotosCount } from "@/lib/photos"; 
 import { useEffect, useState } from "react";
 
 export default function FeaturedNetworks() {
