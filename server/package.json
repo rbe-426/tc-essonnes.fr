@@ -9,8 +9,8 @@
     "start": "node dist/index.js",
     "typeorm": "typeorm",
     "migration:generate": "typeorm migration:generate",
-    "migration:run": "typeorm migration:run -d dist/database.js",
-    "migration:revert": "typeorm migration:revert",
+    "migration:run": "ts-node migration-runner.ts run",
+    "migration:revert": "ts-node migration-runner.ts revert",
     "import:photos": "ts-node src/scripts/importPhotos.ts"
   },
   "dependencies": {

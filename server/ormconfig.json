@@ -1,0 +1,14 @@
+{
+  "type": "postgres",
+  "url": "$DATABASE_URL",
+  "synchronize": false,
+  "logging": true,
+  "entities": ["src/entities/**/*.ts"],
+  "migrations": ["src/migrations/**/*.ts"],
+  "subscribers": [],
+  "cli": {
+    "entitiesDir": "src/entities",
+    "migrationsDir": "src/migrations",
+    "subscribersDir": "src/subscribers"
+  }
+}
