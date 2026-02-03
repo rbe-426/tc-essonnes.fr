@@ -15,14 +15,14 @@ function folderFor(n: any) {
 }
 function readPhotosJson(dir: string) {
   const p = path.join(dir, "photos.json");
-  if (!fs.existsSync(p)) return {} as Record<string,{title?:string;description?:string}>;
+  if (!fs.existsSync(p)) return {} as Record<string,{title?:string;description?:string;brand?:string;model?:string}>;
   try {
     const raw = JSON.parse(fs.readFileSync(p,"utf8"));
     const arr: any[] = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
-    const map: Record<string,{title?:string;description?:string}> = {};
+    const map: Record<string,{title?:string;description?:string;brand?:string;model?:string}> = {};
     for (const it of arr) {
       if (typeof it === "string") map[it] = {};
-      else if (it && typeof it.src === "string") map[it.src] = { title: it.title, description: it.description };
+      else if (it && typeof it.src === "string") map[it.src] = { title: it.title, description: it.description, brand: it.brand, model: it.model };
     }
     return map;
   } catch { return {}; }
