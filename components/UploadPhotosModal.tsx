@@ -50,24 +50,6 @@ export default function UploadPhotosModal({
       return;
     }
 
-    // Demander le token seulement en production
-    let authHeader = "";
-    const isLocalhost = typeof window !== "undefined" && 
-      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    
-    if (!isLocalhost) {
-      const token = prompt(
-        "Entrez le token admin (ADMIN_TOKEN):",
-        ""
-      )?.trim();
-      if (!token) {
-        setStatus("error");
-        setMessage("Token requis pour l'upload");
-        return;
-      }
-      authHeader = `Bearer ${token}`;
-    }
-
     setIsUploading(true);
     setStatus("idle");
     setMessage("");
@@ -81,18 +63,10 @@ export default function UploadPhotosModal({
       formData.append("folder", folder);
       formData.append("networkSlug", networkSlug);
 
-      const fetchOptions: any = {
+      const response = await fetch("/api/photos/upload", {
         method: "POST",
         body: formData,
-      };
-
-      if (authHeader) {
-        fetchOptions.headers = {
-          "Authorization": authHeader,
-        };
-      }
-
-      const response = await fetch("/api/photos/upload", fetchOptions);
+      });
 
       const data = await response.json();
 

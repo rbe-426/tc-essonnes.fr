@@ -6,13 +6,11 @@ const router = express.Router();
 
 /**
  * Middleware d'authentification admin
- * Optionnel en localhost (développement)
+ * Optionnel en développement, requis en production
  */
 const adminAuth = (req: any, res: any, next: any) => {
-  const host = req.hostname || req.headers.host || "";
-  
-  // Permettre l'accès local sans authentification
-  if (host.includes("localhost") || host.includes("127.0.0.1")) {
+  // En développement, pas de token requis
+  if (process.env.NODE_ENV !== "production") {
     return next();
   }
 
