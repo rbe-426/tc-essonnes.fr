@@ -84,13 +84,13 @@ async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
 }
 
 export async function getLatestPhotos(limit = 20): Promise<LatestItem[]> {
-  // Source de vérité = PostgreSQL via API
+  // Source de vérité = PostgreSQL via API (OBLIGATOIRE)
   const fromAPI = await getFromAPI(limit);
   if (fromAPI && fromAPI.length > 0) {
     return fromAPI;
   }
   
-  // Fallback JSON SEULEMENT si API échoue (données obsolètes)
-  console.warn("⚠ API indisponible: utilisation fallback JSON");
+  // Fallback JSON SEULEMENT si API échoue - données obsolètes
+  console.warn("⚠️ API INDISPONIBLE - Utilisation du fallback JSON (données obsolètes!)");
   return getFromFiles(limit);
 }
