@@ -11,7 +11,8 @@
     "migration:generate": "typeorm migration:generate",
     "migration:run": "ts-node migration-runner.ts run",
     "migration:revert": "ts-node migration-runner.ts revert",
-    "import:photos": "ts-node src/scripts/importPhotos.ts"
+    "import:photos": "ts-node src/scripts/importPhotos.ts",
+    "clean:photos": "ts-node src/scripts/cleanPhotosJson.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
