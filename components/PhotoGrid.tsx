@@ -218,7 +218,7 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
           onClick={handleCloseContextMenu}
         >
           <button
-            onClick={handleEdit}
+            onClick={(e) => handleEditButton(e, selectedPhoto!)}
             style={{
               width: "100%",
               padding: "10px 16px",
