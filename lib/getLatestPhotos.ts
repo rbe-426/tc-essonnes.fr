@@ -43,14 +43,20 @@ function getFromFiles(limit = 20): LatestItem[] {
       if (!VALID.has(ext)) continue;
       const stat = fs.statSync(path.join(dir, name));
       const fullPath = path.posix.join("/photos", folder, name);
+      
+      // Chercher les métadonnées par fullPath ou par nom de fichier
+      const metaByFullPath = meta[fullPath];
+      const metaByName = meta[name];
+      const metadata = metaByFullPath || metaByName || {};
+      
       items.push({
         href: n.href || `/gallery/network/${folder}`,
         slug: folder,
         src: fullPath,
-        title: meta[fullPath]?.title ?? null,
-        description: meta[fullPath]?.description ?? null,
-        brand: meta[fullPath]?.brand ?? null,
-        model: meta[fullPath]?.model ?? null,
+        title: metadata.title ?? null,
+        description: metadata.description ?? null,
+        brand: metadata.brand ?? null,
+        model: metadata.model ?? null,
         mtime: stat.mtime.getTime(),
       });
     }
