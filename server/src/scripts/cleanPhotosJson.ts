@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { networks } from "../content/networks";
+
+// Charger les networks depuis le fichier TypeScript principal
+const networks = require(path.join(process.cwd(), "content", "networks")).networks || [];
 
 function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();
@@ -54,7 +56,7 @@ async function cleanPhotosJson() {
       // Écrire le JSON nettoyé
       if (validPhotos.length !== photos.length) {
         const updated = {
-          photos: validPhotos.map(p => 
+          photos: validPhotos.map((p: any) => 
             typeof p === "string" ? p : p
           )
         };

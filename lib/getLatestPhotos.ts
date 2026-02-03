@@ -9,22 +9,6 @@ export type LatestItem = {
   title?: string | null; description?: string | null; brand?: string | null; model?: string | null; mtime: number;
 };
 
-// Essayer de lire depuis la DB via l'API, sinon fallback sur les fichiers
-async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
-  try {
-    // En production, utiliser /api/photos/latest
-    const res = await fetch(`${process.env.BACKEND_URL || "http://localhost:3001"}/api/photos/latest?limit=${limit}`, {
-      cache: "no-store"
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.items || null;
-  } catch (error) {
-    console.warn("⚠ API photos/latest indisponible, fallback fichiers");
-    return null;
-  }
-}
-
 function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();
   return (n as any).folder || fromHref || n.slug;
