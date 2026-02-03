@@ -1,25 +1,29 @@
 import { getLatestPhotos } from "@/lib/getLatestPhotos";
 
 // Fonction pour calculer le seed basé sur la semaine (dimanche 18h UTC)
+// Retourne toujours la même valeur pour la même semaine, peu importe le timezone
 function getWeekSeed(): number {
   const now = new Date();
   
-  // Convertir en UTC
-  const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+  // Obtenir directement le timestamp UTC
+  const utcTime = now.getTime();
   
-  // Trouver le dernier dimanche à 18h UTC
-  const daysToLastSunday = (utcDate.getUTCDay() || 7) - 7; // 0 = dimanche
-  const lastSunday = new Date(utcDate);
-  lastSunday.setUTCDate(utcDate.getUTCDate() + daysToLastSunday);
-  lastSunday.setUTCHours(18, 0, 0, 0);
+  // Calculer le nombre de millisecondes depuis le dernier dimanche 18h UTC
+  // Dimanche = jour 0, donc on cherche le dernier jour 0 à 18h
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const msPerWeek = 7 * msPerDay;
   
-  // Si on n'a pas atteint 18h dimanche cette semaine, prendre le dimanche d'avant
-  if (utcDate < lastSunday) {
-    lastSunday.setUTCDate(lastSunday.getUTCDate() - 7);
-  }
+  // Référence: dimanche 1970-01-04 à 18h UTC (timestamp = 345600000)
+  const referenceTime = new Date("1970-01-04T18:00:00Z").getTime();
   
-  // Retourner le timestamp comme seed
-  return Math.floor(lastSunday.getTime() / 1000);
+  // Combien de semaines complètes depuis la référence?
+  const weeksSinceReference = Math.floor((utcTime - referenceTime) / msPerWeek);
+  
+  // Timestamp du dernier dimanche 18h UTC
+  const lastSundayAtSix = referenceTime + weeksSinceReference * msPerWeek;
+  
+  // Retourner comme seed (en secondes pour compatibilité)
+  return Math.floor(lastSundayAtSix / 1000);
 }
 
 // Fonction simple pour générer un nombre pseudo-aléatoire déterministe
