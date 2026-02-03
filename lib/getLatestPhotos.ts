@@ -13,9 +13,9 @@ function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();
   return (n as any).folder || fromHref || n.slug;
 }
-function readPhotosJson(dir: string) {
+function readPhotosJson(dir: string): Record<string,{title?:string;description?:string;brand?:string;model?:string}> {
   const p = path.join(dir, "photos.json");
-  if (!fs.existsSync(p)) return {} as Record<string,{title?:string;description?:string;brand?:string;model?:string}>;
+  if (!fs.existsSync(p)) return {};
   try {
     const raw = JSON.parse(fs.readFileSync(p,"utf8"));
     const arr: any[] = Array.isArray(raw?.photos) ? raw.photos : Array.isArray(raw) ? raw : [];
