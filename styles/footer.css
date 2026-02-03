@@ -1,14 +1,10 @@
-/* Footer sticky en bas */
+/* Footer au bas de la page */
 .site-footer {
-  position: sticky;
-  bottom: 0;
   background: #0F1114;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   padding: 24px;
-  margin-top: auto;
-  z-index: 50;
 }
 
 .site-footer__content {

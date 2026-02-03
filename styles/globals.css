@@ -1,6 +1,7 @@
-﻿/* Reset lÃ©ger */
+﻿/* Reset léger */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
 img { max-width: 100%; height: auto; display: block; }
 a { text-decoration: none; color: inherit; }
 
@@ -156,7 +157,7 @@ body > main{
 .site-main{
   margin-top: 0 !important;
   padding-top: 8px;        /* petit coussin visuel (mets 0 si tu veux collÃ©) */
-
+  flex: 1;
 }
 
 /* Neutralise la marge du premier Ã©lÃ©ment rendu dans main */
