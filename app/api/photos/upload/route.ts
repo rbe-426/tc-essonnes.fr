@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
+import { mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 import sharp from "sharp";
+import { AppDataSource } from "@/server/src/database";
+import { Photo } from "@/server/src/entities/Photo";
+import { Network } from "@/server/src/entities/Network";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const files = formData.getAll("files") as File[];
     const folder = (formData.get("folder") as string).toLowerCase();
+    const networkSlug = (formData.get("networkSlug") as string)?.toLowerCase() || folder;
 
     if (!files || files.length === 0 || !folder) {
       return NextResponse.json(
@@ -23,6 +27,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, message: "Non autorisé" },
         { status: 403 }
+      );
+    }
+
+    // Initialize database connection
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+    }
+
+    const photoRepository = AppDataSource.getRepository(Photo);
+    const networkRepository = AppDataSource.getRepository(Network);
+
+    // Find the network
+    const network = await networkRepository.findOne({ where: { slug: networkSlug } });
+    if (!network) {
+      return NextResponse.json(
+        { success: false, message: `Réseau '${networkSlug}' non trouvé` },
+        { status: 404 }
       );
     }
 
@@ -41,6 +62,7 @@ export async function POST(request: NextRequest) {
         const baseFilename = file.name.replace(/\.[^/.]+$/, "");
         const webpFilename = `${baseFilename}.webp`;
         const webpFilepath = join(photosDir, webpFilename);
+        const fullPath = `/photos/${folder}/${webpFilename}`;
 
         // Compress and convert to WebP
         await sharp(buffer)
@@ -51,13 +73,49 @@ export async function POST(request: NextRequest) {
           .webp({ quality: 75 })
           .toFile(webpFilepath);
 
+        // Check if photo already exists
+        const existing = await photoRepository.findOne({
+          where: { src: fullPath },
+        });
+
+        if (existing) {
+          console.log(`⊘ Photo existe déjà: ${fullPath}`);
+          continue;
+        }
+
+        // Get the last photo order
+        const lastPhoto = await photoRepository.findOne({
+          where: { networkId: network.id },
+          order: { order: "DESC" },
+        });
+
+        // Create and save photo to database
+        const photo = photoRepository.create({
+          title: baseFilename,
+          displayTitle: baseFilename,
+          img: webpFilename,
+          src: fullPath,
+          slug: folder,
+          desc: null,
+          displayDesc: null,
+          brand: null,
+          model: null,
+          date: null,
+          network,
+          networkId: network.id,
+          order: (lastPhoto?.order ?? -1) + 1,
+        });
+
+        await photoRepository.save(photo);
+
         uploadedPhotos.push({
-          src: `/photos/${folder}/${webpFilename}`,
+          id: photo.id,
+          src: fullPath,
           title: baseFilename,
           description: "",
         });
 
-        console.log(`✅ Photo compressée: ${webpFilename}`);
+        console.log(`✅ Photo importée en DB: ${fullPath}`);
       } catch (fileError) {
         console.error(`❌ Erreur traitement ${file.name}:`, fileError);
         // Continue with next file instead of failing
@@ -73,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${uploadedPhotos.length} photo(s) importée(s) et compressée(s)`,
+      message: `${uploadedPhotos.length} photo(s) importée(s) et sauvegardée(s) en DB`,
       photos: uploadedPhotos,
     });
   } catch (error) {
