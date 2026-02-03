@@ -30,7 +30,7 @@ function seededRandom(seed: number): number {
 
 export async function GET() {
   try {
-    const latest = getLatestPhotos(100);
+    const latest = await getLatestPhotos(100);
     if (latest.length === 0) {
       return Response.json({ photo: null });
     }
