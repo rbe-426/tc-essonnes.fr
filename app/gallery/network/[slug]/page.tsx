@@ -92,6 +92,7 @@ export default function NetworkPage({ params }: { params: { slug: string } }) {
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
   const photos = readPhotosFromFolder(folder);
+  const networkSlug = net.slug;
 
   return (
     <section className="gallery-wrap network-page">
@@ -99,7 +100,7 @@ export default function NetworkPage({ params }: { params: { slug: string } }) {
         <Link href="/gallery">← Retour aux réseaux</Link>
       </nav>
 
-      <NetworkPageClient networkName={net.name} photos={photos} />
+      <NetworkPageClient networkName={net.name} photos={photos} networkSlug={networkSlug} />
     </section>
   );
 }
