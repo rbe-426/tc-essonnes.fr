@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Photo } from "@/lib/photos";
+import type { LatestItem } from "@/lib/getLatestPhotos";
 
 export default function WeeklyPhoto() {
-  const [photo, setPhoto] = useState<(Photo & { network: string; href: string }) | null>(null);
+  const [photo, setPhoto] = useState<LatestItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function WeeklyPhoto() {
       <div className="photo-head">Photo de la semaine</div>
 
       <Link 
-        href={`/gallery/network/${photo.network}?photo=${encodeURIComponent(photo.src)}`}
+        href={`/gallery/network/${photo.slug}?photo=${encodeURIComponent(photo.src)}`}
         className="photo-img-wrap" 
         style={{ cursor: "pointer", display: "block" }}
         title="Voir cette photo dans la galerie"
