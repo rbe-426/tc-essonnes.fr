@@ -15,7 +15,8 @@ router.get("/latest", async (req: any, res: any) => {
 
     const photos = await photoRepository
       .createQueryBuilder("photo")
-      .orderBy("photo.createdAt", "DESC")
+      .orderBy("photo.order", "DESC")
+      .addOrderBy("photo.createdAt", "DESC")
       .limit(limit)
       .select([
         "photo.id",

@@ -2,7 +2,8 @@ import fs from "fs";
 import path from "path";
 
 // Charger les networks depuis le fichier TypeScript principal (à la racine)
-const networks = require(path.join(process.cwd(), "..", "content", "networks")).networks || [];
+const networksPath = path.join(__dirname, "..", "..", "..", "content", "networks");
+const networks = require(networksPath).networks || [];
 
 function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();
@@ -12,9 +13,11 @@ function folderFor(n: any) {
 async function cleanPhotosJson() {
   console.log("🧹 Nettoyage des fichiers photos.json...\n");
 
+  const projectRoot = path.join(__dirname, "..", "..", "..");
+
   for (const n of networks) {
     const folder = folderFor(n);
-    const dir = path.join(process.cwd(), "public", "photos", folder);
+    const dir = path.join(projectRoot, "public", "photos", folder);
 
     if (!fs.existsSync(dir)) {
       console.log(`⊘ Dossier non trouvé: ${folder}`);
