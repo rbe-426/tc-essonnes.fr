@@ -9,8 +9,8 @@ import StatsSection from "../components/StatsSection";
 import { getLatestPhotos } from "../lib/getLatestPhotos";
 import LatestAdditionsWrapper from "../components/LatestAdditionsWrapper";
 
-export default function HomePage() {
-  const latest = getLatestPhotos(20);
+export default async function HomePage() {
+  const latest = await getLatestPhotos(20);
 
   return (
     <section className="home-wrap">
