@@ -1,9 +1,21 @@
 import fs from "fs";
 import path from "path";
 
-// Charger les networks depuis le fichier TypeScript principal (à la racine)
-const networksPath = path.join(__dirname, "..", "..", "..", "content", "networks");
-const networks = require(networksPath).networks || [];
+// Networks hardcodés (même liste)
+const networks = [
+  { slug: "tisse", name: "TISSE", href: "/gallery/network/tisse" },
+  { slug: "ratp", name: "RATP", href: "/gallery/network/ratp" },
+  { slug: "kvyvs", name: "KVYVS", href: "/gallery/network/kvyvs" },
+  { slug: "rer", name: "RER", href: "/gallery/network/rer" },
+  { slug: "ratp_cap_saclay", name: "RATP Cap Saclay", href: "/gallery/network/ratp_cap_saclay" },
+  { slug: "nav_rerd", name: "Navigation RERD", href: "/gallery/network/nav_rerd" },
+  { slug: "reseau-t12", name: "Réseau T12", href: "/gallery/network/reseau-t12" },
+  { slug: "reseau-ksvm", name: "Réseau KSVM", href: "/gallery/network/reseau-ksvm" },
+  { slug: "cars-soeur", name: "Cars Soeur", href: "/gallery/network/cars-soeur" },
+  { slug: "retrobus-essonne", name: "Retrobus Essonne", href: "/gallery/network/retrobus-essonne" },
+  { slug: "transdev-coeur-essonne", name: "Transdev Coeur Essonne", href: "/gallery/network/transdev-coeur-essonne" },
+  { slug: "transdev-senart", name: "Transdev Sénart", href: "/gallery/network/transdev-senart" },
+];
 
 function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();

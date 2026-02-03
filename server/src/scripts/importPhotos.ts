@@ -5,24 +5,23 @@ import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
 
-// Import networks depuis le chemin relatif
-// Depuis server/src/scripts/ -> ../../../content/networks
-const networksPath = path.join(__dirname, "..", "..", "..", "content", "networks");
-let networks: any[] = [];
-try {
-  // Charger directement le fichier TypeScript compilé ou JSON
-  delete require.cache[require.resolve(networksPath)];
-  const networksModule = require(networksPath);
-  networks = networksModule.networks || [];
-  if (networks.length === 0) {
-    console.error("❌ Aucun réseau trouvé");
-    process.exit(1);
-  }
-  console.log(`✓ Chargé ${networks.length} réseaux`);
-} catch (err: any) {
-  // Fallback: charger les networks depuis la base de données
-  console.log("⚠️ Chargement des networks depuis require échoué, utilisation DB...");
-}
+// Networks hardcodés (liste complète)
+const networks = [
+  { slug: "tisse", name: "TISSE", href: "/gallery/network/tisse" },
+  { slug: "ratp", name: "RATP", href: "/gallery/network/ratp" },
+  { slug: "kvyvs", name: "KVYVS", href: "/gallery/network/kvyvs" },
+  { slug: "rer", name: "RER", href: "/gallery/network/rer" },
+  { slug: "ratp_cap_saclay", name: "RATP Cap Saclay", href: "/gallery/network/ratp_cap_saclay" },
+  { slug: "nav_rerd", name: "Navigation RERD", href: "/gallery/network/nav_rerd" },
+  { slug: "reseau-t12", name: "Réseau T12", href: "/gallery/network/reseau-t12" },
+  { slug: "reseau-ksvm", name: "Réseau KSVM", href: "/gallery/network/reseau-ksvm" },
+  { slug: "cars-soeur", name: "Cars Soeur", href: "/gallery/network/cars-soeur" },
+  { slug: "retrobus-essonne", name: "Retrobus Essonne", href: "/gallery/network/retrobus-essonne" },
+  { slug: "transdev-coeur-essonne", name: "Transdev Coeur Essonne", href: "/gallery/network/transdev-coeur-essonne" },
+  { slug: "transdev-senart", name: "Transdev Sénart", href: "/gallery/network/transdev-senart" },
+];
+
+console.log(`✓ Chargé ${networks.length} réseaux`);
 
 const VALID = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
