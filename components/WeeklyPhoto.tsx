@@ -56,7 +56,7 @@ export default function WeeklyPhoto() {
       <div className="photo-head">Photo de la semaine</div>
 
       <Link 
-        href={`/gallery/network/${photo.slug}?photo=${encodeURIComponent(photo.src)}`}
+        href={`/gallery/network/${photo.network}?photo=${encodeURIComponent(photo.src)}`}
         className="photo-img-wrap" 
         style={{ cursor: "pointer", display: "block" }}
         title="Voir cette photo dans la galerie"
