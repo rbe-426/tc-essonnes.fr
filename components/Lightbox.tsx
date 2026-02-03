@@ -10,10 +10,15 @@ export default function Lightbox({ items }: { items: Item[] }) {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [detailedZoom, setDetailedZoom] = useState(false);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // fonction globale pour ouvrir
   useEffect(() => {
-    (window as any).__openLb = (i: number) => { setIdx(i); setOpen(true); setZoom(1); };
+    (window as any).__openLb = (i: number) => { setIdx(i); setOpen(true); setZoom(1); setPanX(0); setPanY(0); };
     return () => { delete (window as any).__openLb; };
   }, []);
 
@@ -24,19 +29,22 @@ export default function Lightbox({ items }: { items: Item[] }) {
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY > 0 ? -0.1 : 0.1))));
+    setZoom(z => Math.max(1, Math.min(6, z + (e.deltaY > 0 ? -0.1 : 0.1))));
   };
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        if (detailedZoom) setDetailedZoom(false);
+        else close();
+      }
       else if (e.key === "ArrowLeft") prev();
       else if (e.key === "ArrowRight") next();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, close, prev, next]);
+  }, [open, close, prev, next, detailedZoom]);
 
   useEffect(() => {
     if (!open) return;
@@ -44,7 +52,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
       const container = document.querySelector(".lb-left") as HTMLElement;
       if (container?.contains(e.target as Node)) {
         e.preventDefault();
-        setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY > 0 ? -0.1 : 0.1))));
+        setZoom(z => Math.max(1, Math.min(6, z + (e.deltaY > 0 ? -0.1 : 0.1))));
       }
     };
     window.addEventListener("wheel", handleWheel, { passive: false });
@@ -54,19 +62,114 @@ export default function Lightbox({ items }: { items: Item[] }) {
   if (!open || !items.length) return null;
   const it = items[idx];
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || zoom <= 1) return;
+    setPanX(e.clientX - dragStart.x);
+    setPanY(e.clientY - dragStart.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Mode zoom détaillé fullscreen
+  if (detailedZoom) {
+    return (
+      <div 
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "#000",
+          zIndex: 10000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden"
+        }}
+        onClick={() => setDetailedZoom(false)}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "90vw",
+            height: "90vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            cursor: isDragging ? "grabbing" : zoom > 1 ? "grab" : "zoom-in"
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onWheel={handleWheel}
+        >
+          <img 
+            src={it.src} 
+            alt={it.title || ""} 
+            loading="eager"
+            decoding="async"
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
+            onMouseDown={handleMouseDown}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
+              transformOrigin: "center",
+              transition: zoom === 1 ? "transform 0.2s" : "none",
+              userSelect: "none",
+              cursor: isDragging ? "grabbing" : zoom > 1 ? "grab" : "zoom-in",
+            }}
+          />
+          <button 
+            className="lb-x" 
+            onClick={() => setDetailedZoom(false)} 
+            aria-label="Fermer le zoom"
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              zIndex: 10001
+            }}
+          >
+            ×
+          </button>
+          <button className="lb-nav lb-prev" onClick={prev} aria-label="Précédent">❮</button>
+          <button className="lb-nav lb-next" onClick={next} aria-label="Suivant">❯</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="lb-backdrop" onClick={close} role="dialog" aria-modal="true">
       <div className="lb-modal two-cols" onClick={(e) => e.stopPropagation()}>
         <button className="lb-x" onClick={close} aria-label="Fermer">×</button>
 
-        {/* Colonne image (contain → aucune coupe) */}
+        {/* Colonne image avec zoom */}
         <div 
           className="lb-left" 
           onWheel={handleWheel}
           style={{ 
-            overflow: "auto", 
-            cursor: zoom > 1 ? "grab" : "auto",
-            position: "relative"
+            overflow: zoom > 1 ? "auto" : "hidden",
+            cursor: zoom > 1 ? "zoom-out" : "zoom-in",
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#000"
           }}
         >
           <img 
@@ -76,10 +179,11 @@ export default function Lightbox({ items }: { items: Item[] }) {
             decoding="async"
             onContextMenu={(e) => e.preventDefault()}
             draggable={false}
+            onClick={() => setDetailedZoom(true)}
             style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
+              width: "100%",
+              height: "100%",
+              objectFit: zoom > 1 ? "cover" : "contain",
               transform: `scale(${zoom})`,
               transformOrigin: "center",
               transition: zoom === 1 ? "transform 0.2s" : "none",
@@ -87,6 +191,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
               WebkitUserSelect: "none",
               WebkitTouchCallout: "none",
               willChange: "transform",
+              cursor: "pointer"
             }}
           />
           <button className="lb-nav lb-prev" onClick={prev} aria-label="Précédent">❮</button>

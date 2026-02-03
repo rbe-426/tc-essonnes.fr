@@ -109,11 +109,18 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
               }}
               onContextMenu={(e) => handleContextMenu(e, p)}
             >
-              <button
-                type="button"
+              <div
                 className="photo-card"
                 onClick={() => (window as any).__openLb?.(sortedItems.indexOf(p))}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    (window as any).__openLb?.(sortedItems.indexOf(p));
+                  }
+                }}
                 aria-label={title ? `Agrandir : ${title}` : "Agrandir la photo"}
+                style={{ cursor: "pointer" }}
               >
                 <div className="photo-thumb">
                   <img 
@@ -132,58 +139,58 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
                 <div className="photo-meta">
                   {title ? <div className="photo-title">{title}</div> : null}
                 </div>
+              </div>
 
-                {isEditMode && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDelete(e, p)}
-                      style={{
-                        position: "absolute",
-                        bottom: 8,
-                        left: 8,
-                        background: "rgba(244, 67, 54, 0.2)",
-                        border: "1px solid #F44336",
-                        borderRadius: "4px",
-                        padding: "2px 6px",
-                        fontSize: "0.7rem",
-                        fontWeight: "600",
-                        color: "#F44336",
-                        cursor: "pointer",
-                        opacity: 0.7,
-                        transition: "opacity 0.2s",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
-                    >
-                      🗑️ Supprimer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => handleEditButton(e, p)}
-                      style={{
-                        position: "absolute",
-                        bottom: 8,
-                        right: 8,
-                        background: "rgba(76, 175, 80, 0.2)",
-                        border: "1px solid #4CAF50",
-                        borderRadius: "4px",
-                        padding: "2px 6px",
-                        fontSize: "0.7rem",
-                        fontWeight: "600",
-                        color: "#4CAF50",
-                        cursor: "pointer",
-                        opacity: 0.7,
-                        transition: "opacity 0.2s",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
-                    >
-                      ✏️ Éditer
-                    </button>
-                  </>
-                )}
-              </button>
+              {isEditMode && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDelete(e, p)}
+                    style={{
+                      position: "absolute",
+                      bottom: 8,
+                      left: 8,
+                      background: "rgba(244, 67, 54, 0.2)",
+                      border: "1px solid #F44336",
+                      borderRadius: "4px",
+                      padding: "2px 6px",
+                      fontSize: "0.7rem",
+                      fontWeight: "600",
+                      color: "#F44336",
+                      cursor: "pointer",
+                      opacity: 0.7,
+                      transition: "opacity 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+                  >
+                    🗑️ Supprimer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleEditButton(e, p)}
+                    style={{
+                      position: "absolute",
+                      bottom: 8,
+                      right: 8,
+                      background: "rgba(76, 175, 80, 0.2)",
+                      border: "1px solid #4CAF50",
+                      borderRadius: "4px",
+                      padding: "2px 6px",
+                      fontSize: "0.7rem",
+                      fontWeight: "600",
+                      color: "#4CAF50",
+                      cursor: "pointer",
+                      opacity: 0.7,
+                      transition: "opacity 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+                  >
+                    ✏️ Éditer
+                  </button>
+                </>
+              )}
             </div>
           );
         })}
