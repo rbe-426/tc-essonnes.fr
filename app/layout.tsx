@@ -2,6 +2,7 @@
 import "../styles/globals.css";
 import "../styles/brand.css";
 import "../styles/gallery.css";
+import "../styles/footer.css";
 import "../styles/fonts.css";
 import Footer from "../components/Footer";
 import MainShell from "../components/MainShell";
