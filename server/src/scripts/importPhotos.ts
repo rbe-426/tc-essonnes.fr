@@ -5,8 +5,24 @@ import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
 
-// Charger les networks depuis le fichier TypeScript principal
-const networks = require(path.join(process.cwd(), "content", "networks")).networks || [];
+// Import networks depuis le chemin relatif
+// Depuis server/src/scripts/ -> ../../../content/networks
+const networksPath = path.join(__dirname, "..", "..", "..", "content", "networks");
+let networks: any[] = [];
+try {
+  // Charger directement le fichier TypeScript compilé ou JSON
+  delete require.cache[require.resolve(networksPath)];
+  const networksModule = require(networksPath);
+  networks = networksModule.networks || [];
+  if (networks.length === 0) {
+    console.error("❌ Aucun réseau trouvé");
+    process.exit(1);
+  }
+  console.log(`✓ Chargé ${networks.length} réseaux`);
+} catch (err: any) {
+  // Fallback: charger les networks depuis la base de données
+  console.log("⚠️ Chargement des networks depuis require échoué, utilisation DB...");
+}
 
 const VALID = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
@@ -47,14 +63,27 @@ async function importPhotos() {
     const photoRepo = AppDataSource.getRepository(Photo);
     const networkRepo = AppDataSource.getRepository(Network);
 
+    // Si networks est vide après le require, on charge depuis la DB
+    if (networks.length === 0) {
+      const dbNetworks = await networkRepo.find();
+      if (dbNetworks.length === 0) {
+        console.error("❌ Aucun réseau disponible");
+        process.exit(1);
+      }
+      networks = dbNetworks;
+      console.log(`✓ Chargé ${networks.length} réseaux depuis DB`);
+    }
+
     let totalImported = 0;
 
     for (const n of networks) {
       const folder = folderFor(n);
-      const dir = path.join(process.cwd(), "public", "photos", folder);
+      // Remonter de server/src/scripts/ à la racine, puis public/photos/
+      const projectRoot = path.join(__dirname, "..", "..", "..");
+      const dir = path.join(projectRoot, "public", "photos", folder);
 
       if (!fs.existsSync(dir)) {
-        console.log(`⊘ Dossier non trouvé: ${folder}`);
+        console.log(`⊘ Dossier non trouvé: ${dir}`);
         continue;
       }
 

@@ -58,10 +58,7 @@ router.post("/", authMiddleware, async (req: any, res: any) => {
     const network = networkRepository.create({
       slug,
       name,
-      folder,
-      img: img || null,
       href: href || null,
-      logoHeight: logoHeight || null,
     });
 
     await networkRepository.save(network);
@@ -77,7 +74,7 @@ router.post("/", authMiddleware, async (req: any, res: any) => {
 router.put("/:slug", authMiddleware, async (req: any, res: any) => {
   try {
     const { slug } = req.params;
-    const { name, folder, img, href, logoHeight } = req.body;
+    const { name, href } = req.body;
 
     const network = await networkRepository.findOne({ where: { slug } });
 
@@ -86,10 +83,7 @@ router.put("/:slug", authMiddleware, async (req: any, res: any) => {
     }
 
     if (name) network.name = name;
-    if (folder) network.folder = folder;
-    if (img !== undefined) network.img = img;
     if (href !== undefined) network.href = href;
-    if (logoHeight !== undefined) network.logoHeight = logoHeight;
 
     await networkRepository.save(network);
 

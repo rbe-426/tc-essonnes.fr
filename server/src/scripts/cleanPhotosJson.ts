@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-// Charger les networks depuis le fichier TypeScript principal
-const networks = require(path.join(process.cwd(), "content", "networks")).networks || [];
+// Charger les networks depuis le fichier TypeScript principal (à la racine)
+const networks = require(path.join(process.cwd(), "..", "content", "networks")).networks || [];
 
 function folderFor(n: any) {
   const fromHref = (n?.href || "").split("/").filter(Boolean).pop();

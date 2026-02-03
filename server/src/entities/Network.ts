@@ -12,17 +12,8 @@ export class Network {
   @Column()
   name: string;
 
-  @Column()
-  folder: string;
-
-  @Column({ nullable: true })
-  img: string;
-
   @Column({ nullable: true })
   href: string;
-
-  @Column({ nullable: true, type: "integer" })
-  logoHeight: number;
 
   @OneToMany(() => Photo, (photo) => photo.network, { cascade: true })
   photos: Photo[];

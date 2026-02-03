@@ -29,7 +29,7 @@ function readPhotosJson(dir: string): Record<string,{title?:string;description?:
   } catch { return {}; }
 }
 
-// Fallback: lire depuis les fichiers JSON
+// Fallback: lire depuis les fichiers JSON (données obsolètes, à utiliser que si DB est indisponible)
 function getFromFiles(limit = 20): LatestItem[] {
   const items: LatestItem[] = [];
   for (const n of networks) {
@@ -44,7 +44,6 @@ function getFromFiles(limit = 20): LatestItem[] {
       const stat = fs.statSync(path.join(dir, name));
       const fullPath = path.posix.join("/photos", folder, name);
       
-      // Chercher les métadonnées par fullPath ou par nom de fichier
       const metaByFullPath = meta[fullPath];
       const metaByName = meta[name];
       const metadata = metaByFullPath || metaByName || {};
@@ -65,35 +64,33 @@ function getFromFiles(limit = 20): LatestItem[] {
   return items.slice(0, limit);
 }
 
-// Essayer l'API d'abord (source de vérité)
+// Fetch depuis l'API (source de vérité PostgreSQL)
 async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
   try {
-    // En production, utiliser l'API backend (source de vérité)
     const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
     const res = await fetch(`${backendUrl}/api/photos/latest?limit=${limit}`, {
       cache: "no-store"
     });
     if (!res.ok) {
-      console.warn(`⚠ API retourné ${res.status}, fallback fichiers`);
+      console.warn(`⚠ API ${res.status}, fallback JSON`);
       return null;
     }
     const data = await res.json();
     return data.items || null;
   } catch (error) {
-    console.warn("⚠ API indisponible, fallback fichiers JSON");
+    console.warn(`⚠ API indisponible: ${error}`);
     return null;
   }
 }
 
 export async function getLatestPhotos(limit = 20): Promise<LatestItem[]> {
-  // Toujours essayer l'API en premier
+  // Source de vérité = PostgreSQL via API
   const fromAPI = await getFromAPI(limit);
-  if (fromAPI) {
-    console.log(`✓ Chargé depuis API (${fromAPI.length} photos)`);
+  if (fromAPI && fromAPI.length > 0) {
     return fromAPI;
   }
   
-  // Fallback sur les fichiers JSON seulement si l'API échoue
-  console.warn("⚠ Fallback: lecture fichiers JSON (données potentiellement obsolètes)");
+  // Fallback JSON SEULEMENT si API échoue (données obsolètes)
+  console.warn("⚠ API indisponible: utilisation fallback JSON");
   return getFromFiles(limit);
 }
