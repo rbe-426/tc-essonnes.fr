@@ -56,5 +56,3 @@ export function getLatestPhotos(limit = 20): LatestItem[] {
   items.sort((a,b)=>b.mtime-a.mtime);
   return items.slice(0, limit);
 }
-
-export type { LatestItem };
