@@ -100,8 +100,8 @@
   position: relative;
 }
 .lb-modal.two-cols{ display:grid; grid-template-columns: 62% 38%; }
-.lb-left{ background:#0b0d10; display:grid; place-items:center; min-height: 60vh; }
-.lb-left img{ max-width:100%; max-height:100%; object-fit:contain; }
+.lb-left{ background:#0b0d10; display:flex; align-items:center; justify-content:center; min-height: 60vh; overflow: auto; position: relative; }
+.lb-left img{ max-width:100%; max-height:100%; object-fit:contain; will-change: transform; }
 
 .lb-right{ 
   padding:22px 18px; 

@@ -22,7 +22,8 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    setZoom(z => Math.max(1, Math.min(3, z - e.deltaY * 0.001)));
+    e.stopPropagation();
+    setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY > 0 ? -0.1 : 0.1))));
   };
 
   useEffect(() => {
@@ -36,6 +37,19 @@ export default function Lightbox({ items }: { items: Item[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, close, prev, next]);
 
+  useEffect(() => {
+    if (!open) return;
+    const handleWheel = (e: WheelEvent) => {
+      const container = document.querySelector(".lb-left") as HTMLElement;
+      if (container?.contains(e.target as Node)) {
+        e.preventDefault();
+        setZoom(z => Math.max(1, Math.min(3, z + (e.deltaY > 0 ? -0.1 : 0.1))));
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [open]);
+
   if (!open || !items.length) return null;
   const it = items[idx];
 
@@ -45,7 +59,15 @@ export default function Lightbox({ items }: { items: Item[] }) {
         <button className="lb-x" onClick={close} aria-label="Fermer">×</button>
 
         {/* Colonne image (contain → aucune coupe) */}
-        <div className="lb-left" onWheel={handleWheel} style={{ overflow: "auto", cursor: zoom > 1 ? "grab" : "auto" }}>
+        <div 
+          className="lb-left" 
+          onWheel={handleWheel}
+          style={{ 
+            overflow: "auto", 
+            cursor: zoom > 1 ? "grab" : "auto",
+            position: "relative"
+          }}
+        >
           <img 
             src={it.src} 
             alt={it.title || ""} 
@@ -63,6 +85,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
               userSelect: "none",
               WebkitUserSelect: "none",
               WebkitTouchCallout: "none",
+              willChange: "transform",
             }}
           />
           <button className="lb-nav lb-prev" onClick={prev} aria-label="Précédent">❮</button>
