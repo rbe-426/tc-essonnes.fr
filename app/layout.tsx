@@ -34,8 +34,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               style={{
                 maxWidth: 1200,
                 margin: "0 auto",
-                padding: "8px 24px 24px", // padding conservé
-                display: "flow-root",     // supprime le trou sous le header
+                padding: "8px 24px 24px",
+                display: "flow-root",
+                flex: 1,
+                width: "100%",
               }}
             >
               <MainShell>{children}</MainShell>

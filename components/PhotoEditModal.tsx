@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { getServerUrl } from "@/lib/serverUrl";
+import { busBrands, busModels } from "@/content/busModels";
 
 interface Photo {
   src?: string;
   title?: string;
   description?: string;
+  brand?: string;
+  model?: string;
 }
 
 interface PhotoEditModalProps {
@@ -51,6 +54,8 @@ export default function PhotoEditModal({
               src: editPhoto.src,
               title: editPhoto.title,
               description: editPhoto.description,
+              brand: editPhoto.brand,
+              model: editPhoto.model,
             }),
           });
 
@@ -198,6 +203,138 @@ export default function PhotoEditModal({
               resize: "vertical",
             }}
           />
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "12px",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              opacity: 0.9,
+            }}
+          >
+            Marque
+          </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {busBrands.map((brand) => (
+              <label
+                key={brand.slug}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  opacity: 0.9,
+                }}
+              >
+                <input
+                  type="radio"
+                  name="brand"
+                  value={brand.slug}
+                  checked={editPhoto?.brand === brand.slug}
+                  onChange={(e) => handleChange("brand", e.target.value)}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    cursor: "pointer",
+                  }}
+                />
+                <span>{brand.name}</span>
+              </label>
+            ))}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+                opacity: 0.9,
+                marginTop: "4px",
+              }}
+            >
+              <input
+                type="radio"
+                name="brand"
+                value=""
+                checked={!editPhoto?.brand}
+                onChange={(e) => handleChange("brand", "")}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                }}
+              />
+              <span>Aucune marque</span>
+            </label>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "12px",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              opacity: 0.9,
+            }}
+          >
+            Modèle
+          </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {busModels.map((model) => (
+              <label
+                key={model.slug}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  opacity: 0.9,
+                }}
+              >
+                <input
+                  type="radio"
+                  name="model"
+                  value={model.slug}
+                  checked={editPhoto?.model === model.slug}
+                  onChange={(e) => handleChange("model", e.target.value)}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    cursor: "pointer",
+                  }}
+                />
+                <span>{model.name}</span>
+              </label>
+            ))}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+                opacity: 0.9,
+                marginTop: "4px",
+              }}
+            >
+              <input
+                type="radio"
+                name="model"
+                value=""
+                checked={!editPhoto?.model}
+                onChange={(e) => handleChange("model", "")}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  cursor: "pointer",
+                }}
+              />
+              <span>Aucun modèle</span>
+            </label>
+          </div>
         </div>
 
         <div

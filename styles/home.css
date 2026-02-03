@@ -116,7 +116,7 @@
 
 /* les styles "Derniers ajouts" sont namespacés, donc sans impact sur tes bulles */
 .tce-latest-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.tce-latest-icon { width:20px; height:auto; opacity:.9; filter:grayscale(1) brightness(.95); }
+.tce-latest-icon { width:48px; height:auto; opacity:.9; filter:grayscale(1) brightness(.95); }
 /* Force l'emplacement des colonnes dans la grille */
 .home-left { grid-column: 1 !important; }
 .home-side { grid-column: 2 !important; }
@@ -513,6 +513,62 @@ body > main{ padding-top: 8px !important; }
 .network-count{
   font-size: 0.75rem;
   opacity: 0.65;
+}
+
+/* Featured Networks Compact (colonne droite) */
+.featured-networks-compact {
+  padding: 20px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+}
+.featured-networks-compact h3 {
+  margin: 0 0 14px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.networks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.network-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.network-card:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.15);
+  transform: translateY(-2px);
+}
+.network-card-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+.network-card-info {
+  text-align: center;
+  width: 100%;
+}
+.network-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+.network-card-count {
+  font-size: 0.7rem;
+  opacity: 0.6;
 }
 
 /* Responsive */

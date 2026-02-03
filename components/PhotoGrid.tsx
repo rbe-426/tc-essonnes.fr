@@ -7,7 +7,7 @@ import PhotoEditModal from "./PhotoEditModal";
 import { useEditContext } from "@/contexts/EditContext";
 import { getServerUrl } from "@/lib/serverUrl";
 
-type Item = { src: string; title?: string; description?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string };
 
 function fileTitleFallback(src: string) {
   try {
@@ -67,6 +67,8 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
       if (response.ok) {
         setItems(items.filter(p => p.src !== photo.src));
         alert("Photo supprimée!");
+        // Émettre un event pour que l'accueil se recharge
+        window.dispatchEvent(new Event("photos-updated"));
       } else {
         alert("Erreur lors de la suppression");
       }
@@ -85,6 +87,8 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
   const handleSavePhoto = (updatedPhoto: Item) => {
     console.log("Photo mise à jour:", updatedPhoto);
     setIsModalOpen(false);
+    // Émettre un event pour que l'accueil se recharge
+    window.dispatchEvent(new Event("photos-updated"));
   };
 
   // Fermer le menu au clic ailleurs

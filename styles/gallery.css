@@ -161,9 +161,7 @@
   border-radius:12px; padding:14px;
 }
 .tce-latest-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.tce-latest-icon{ width:20px; height:auto; opacity:.9; filter: grayscale(1) brightness(.95); }
-
-.latest-wrap{ display:flex; flex-direction:column; gap:10px; }
+.tce-latest-icon{ width:48px; height:auto; opacity:.9; filter: grayscale(1) brightness(.95); }
 .latest-grid{ display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 .latest-item{
   display:flex; flex-direction:column; gap:6px;
@@ -174,8 +172,7 @@
 .latest-item:hover{ transform: translateY(-2px); border-color: rgba(255,255,255,.22); background:#121418; }
 .latest-thumb{ border-radius:8px; overflow:hidden; background:#0b0d10; }
 .latest-thumb img{ display:block; width:100%; height:120px; object-fit:cover; }
-.latest-meta{ padding: 0 4px 4px; }
-.latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; height:2.6em; overflow:hidden; }
+.latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; min-height:1.3em; overflow:hidden; }
 .latest-more{
   align-self:center; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.06); color:#fff; cursor:pointer;
@@ -185,7 +182,7 @@
 /* === Carte "Derniers ajouts" (namespacé) === */
 .tce-latest-card{ background:#0F1114; border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:14px; }
 .tce-latest-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.tce-latest-icon{ width:20px; height:auto; opacity:.9; filter:grayscale(1) brightness(.95); }
+.tce-latest-icon{ width:48px; height:auto; opacity:.9; filter:grayscale(1) brightness(.95); }
 
 .latest-wrap{ display:flex; flex-direction:column; gap:10px; }
 .latest-grid{ display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
@@ -193,7 +190,7 @@
 .latest-item:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.22); background:#121418; }
 .latest-thumb{ border-radius:8px; overflow:hidden; background:#0b0d10; }
 .latest-thumb img{ display:block; width:100%; height:120px; object-fit:cover; }
-.latest-meta{ padding:0 4px 4px; } .latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; height:2.6em; overflow:hidden; }
+.latest-meta{ padding:0 4px 4px; } .latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; min-height:1.3em; overflow:hidden; }
 .latest-more{ align-self:center; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:#fff; cursor:pointer; }
 .latest-more:hover{ background:rgba(255,255,255,.1); }
 
@@ -202,7 +199,7 @@
 
 /* Carte “Derniers ajouts” — namespacée */
 .tce-latest-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-.tce-latest-icon{ width:20px; height:auto; opacity:.9; filter: grayscale(1) brightness(.95); }
+.tce-latest-icon{ width:48px; height:auto; opacity:.9; filter: grayscale(1) brightness(.95); }
 
 /* Grille de vignettes compacte */
 .latest-wrap{ display:flex; flex-direction:column; gap:10px; }
@@ -217,7 +214,7 @@
 .latest-thumb{ border-radius:8px; overflow:hidden; background:#0b0d10; }
 .latest-thumb img{ display:block; width:100%; height:120px; object-fit:cover; }
 .latest-meta{ padding:0 4px 4px; }
-.latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; height:2.6em; overflow:hidden; }
+.latest-title{ color:#E7EAF0; font-size:.9rem; line-height:1.3; min-height:1.3em; overflow:hidden; }
 .latest-more{
   align-self:center; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.06); color:#fff; cursor:pointer;

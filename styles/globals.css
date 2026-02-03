@@ -1,165 +1,54 @@
 ﻿/* Reset léger */
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body { display: flex; flex-direction: column; min-height: 100vh; }
+html { height: 100%; }
+body { margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
 img { max-width: 100%; height: auto; display: block; }
 a { text-decoration: none; color: inherit; }
 
-/* empÃªche un wrapper de bloquer le scroll */
-.network-index-page{
+/* Abribus décoratif fixé à gauche */
+:root {
+  --decor-left-w: 72px;
+  --decor-left-bottom: 12vh;
+}
+
+.decor-left {
+  position: fixed;
+  left: 0;
+  bottom: var(--decor-left-bottom);
+  width: var(--decor-left-w);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.decor-left-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: .18;
+  filter: grayscale(1) contrast(.8) brightness(.9);
+}
+
+/* Le contenu passe au-dessus */
+.main-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Garde-fou pour éviter les effondrement de margin */
+body > main {
+  padding-top: 8px;
+}
+
+.home-wrap { margin-top: 0 !important; }
+.home-wrap h1 { margin-top: 0 !important; }
+header + main { margin-top: 0 !important; }
+main > section:first-child { margin-top: 0; }
+.gallery-wrap h1 { margin-top: 0; }
+
+/* Prévient un wrapper de bloquer le scroll */
+.network-index-page {
   min-height: auto;
   height: auto;
-  overflow: visible; /* ou auto si tu veux un scrolling interne */
-  scrollbar-gutter: stable; /* Ã©vite les sauts de mise en page */
+  overflow: visible;
+  scrollbar-gutter: stable;
 }
-
-:root{
-  --decor-left-w: 86px;   /* taille â€œinitialeâ€ Ã  retrouver */
-  --decor-left-bottom: 10vh; /* plus bas; ajuste 6â€“14vh selon goÃ»t */
-}
-
-.decor-left{               /* lâ€™Ã©lÃ©ment conteneur */
-  position: fixed;
-  left: 0;
-  bottom: var(--decor-left-bottom);
-  width: var(--decor-left-w);
-  z-index: 0;
-  pointer-events: none;
-}
-.decor-left-img{           /* ton <img src="/brand/abribus.png"> */
-  width: 100%;
-  height: auto;
-  display: block;
-  opacity: .18;            /* discret */
-  filter: grayscale(1) contrast(.8) brightness(.9);
-}
-
-/* le contenu passe au-dessus et peut dÃ©filer normalement */
-.main-content{ position: relative; z-index: 1; }
-html, body{ height:100%; overflow-y:auto !important; }
-
-:root{
-  /* â‡£ ajuste juste cette largeur pour retrouver EXACTEMENT ta taille dâ€™origine */
-  --decor-left-w: 72px;     /* ex: 72â€“86px selon ton ancien rendu */
-  --decor-left-bottom: 10vh; /* plus bas (augmente pour remonter) */
-}
-
-.decor-left{
-  position: fixed;
-  left: 0;
-  bottom: var(--decor-left-bottom);
-  width: var(--decor-left-w);
-  z-index: 0;
-  pointer-events: none;
-}
-
-.decor-left-img{
-  width: 100%;
-  height: auto;
-  display: block;
-
-  /* discrÃ©tion + mÃªme â€œtintâ€ que les cartes */
-  opacity: .18;
-  filter: grayscale(1) contrast(.8) brightness(.9);
-}
-
-/* le contenu scroll au-dessus, le fond ne bouge jamais */
-.main-content{ position: relative; z-index: 1; }
-
-/* garde-fou pour la barre de scroll qui disparaissait */
-html, body{ height:100%; overflow-y:auto !important; }
-:root{
-  --decor-left-w: 72px;      /* â† remets ta largeur d'origine (ex: 72â€“86px) */
-  --decor-left-bottom: 12vh;  /* â† plus bas; ajuste 8â€“14vh selon rendu */
-}
-
-.decor-left{
-  position: fixed;
-  left: 0;
-  bottom: var(--decor-left-bottom);
-  width: var(--decor-left-w);
-  z-index: 0;
-  pointer-events: none;
-}
-.decor-left-img{
-  width: 100%;
-  height: auto;
-  display: block;
-  opacity: .18;
-  filter: grayscale(1) contrast(.8) brightness(.9);
-}
-
-/* le contenu passe dessus; le fond reste immobile */
-.main-content{ position: relative; z-index: 1; }
-
-/* garde-fou barre de scroll */
-html, body{ height:100%; overflow-y:auto !important; }
-/* Abribus de fond (MainShell) â€” rempli l'espace ENTRE le header et le bas de page */
-:root{ --decor-gap-top: -2px; } /* ou -3px */
-
-.decor-left{
-  position: fixed !important;
-  left: 0 !important;
-
-  /* Top collÃ© au BAS du header */
-  top: calc(var(--header-h, 140px) + var(--decor-gap-top)) !important;
-
-  /* Hauteur = hauteur de vue - header (et gap Ã©ventuel).
-     Fallback 100vh puis 100dvh pour iOS/Chrome rÃ©cents */
-  height: calc(100vh - var(--header-h, 140px) - var(--decor-gap-top)) !important;
-  height: calc(100dvh - var(--header-h, 140px) - var(--decor-gap-top)) !important;
-
-  /* On ne force PLUS la largeur : elle suit le ratio de lâ€™image */
-  width: auto !important;
-
-  z-index: 0;
-  pointer-events: none;
-}
-
-.decor-left-img{
-  /* L'image occupe TOUTE la hauteur disponible â†’ 
-     le BAS de lâ€™image touche le BAS de la page */
-  height: 100% !important;
-  width: auto !important;
-  display: block;
-
-  /* rendu discret, identique aux cartes */
-  opacity: .18;
-  filter: grayscale(1) contrast(.8) brightness(.9);
-}
-
-.main-content{ position: relative; z-index: 1; }
-
-/* Garde-fou scroll */
-html, body{ height:100%; overflow-y:auto !important; }
-main > section:first-child{ margin-top: 0; }
-.home-wrap h1, .gallery-wrap h1{ margin-top: 0; }
-
-/* RÃ©duit le â€œtrouâ€ sous le header sur toutes les pages */
-header + main{ margin-top: -5 !important; }
-
-/* Ã‰vite le collapsing margin du premier bloc */
-body > main{
-  padding-top: 8px !important;   /* petit coussin, pas 0 */
-  overflow: auto;                /* crÃ©e un BFC â†’ plus dâ€™effondrement de marge */
-}
-
-/* Accueil : pas de marge parasite en haut */
-.home-wrap{ margin-top: 0 !important; }
-.home-wrap h1{ margin-top: 0 !important; }
-/* EmpÃªche tout "trou" entre header et contenu */
-.app-stack{
-  display: flex;
-  flex-direction: column;  /* header, main, footer empilÃ©s */
-}
-
-/* Pas de marge top inattendue cÃ´tÃ© contenu */
-.site-main{
-  margin-top: 0 !important;
-  padding-top: 8px;        /* petit coussin visuel (mets 0 si tu veux collÃ©) */
-  flex: 1;
-}
-
-/* Neutralise la marge du premier Ã©lÃ©ment rendu dans main */
-
-/* Footer styles moved to footer.css */

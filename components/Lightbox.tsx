@@ -2,8 +2,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getBusBrandBySlug, getBusModelBySlug } from "@/content/busModels";
 
-type Item = { src: string; title?: string; description?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string };
 
 export default function Lightbox({ items }: { items: Item[] }) {
   const [open, setOpen] = useState(false);
@@ -94,6 +95,27 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
         {/* Colonne texte à droite */}
         <aside className="lb-right">
+          {console.log("Photo data:", it) /* DEBUG */}
+          {it.brand && (() => {
+            const brand = getBusBrandBySlug(it.brand);
+            return brand ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <span style={{ opacity: 0.7 }}>Marque:</span>
+                <img src={brand.logo} alt={brand.name} style={{ height: "32px", objectFit: "contain" }} />
+                <span>{brand.name}</span>
+              </div>
+            ) : null;
+          })()}
+          {it.model && (() => {
+            const model = getBusModelBySlug(it.model);
+            return model ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <span style={{ opacity: 0.7 }}>Modèle:</span>
+                <img src={model.logo} alt={model.name} style={{ height: "32px", objectFit: "contain" }} />
+                <span>{model.name}</span>
+              </div>
+            ) : null;
+          })()}
           {it.title && <div className="lb-title">{it.title}</div>}
           {it.description && <div className="lb-desc">{it.description}</div>}
         </aside>

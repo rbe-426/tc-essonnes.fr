@@ -4,9 +4,9 @@ import { networks } from "../content/networks";
 
 const VALID = new Set([".jpg",".jpeg",".png",".webp",".gif"]);
 
-type LatestItem = {
+export type LatestItem = {
   href: string; slug: string; src: string;
-  title?: string | null; description?: string | null; mtime: number;
+  title?: string | null; description?: string | null; brand?: string | null; model?: string | null; mtime: number;
 };
 
 function folderFor(n: any) {
@@ -46,6 +46,8 @@ export function getLatestPhotos(limit = 20): LatestItem[] {
         src: path.posix.join("/photos", folder, name),
         title: meta[name]?.title ?? null,
         description: meta[name]?.description ?? null,
+        brand: meta[name]?.brand ?? null,
+        model: meta[name]?.model ?? null,
         mtime: stat.mtime.getTime(),
       });
     }

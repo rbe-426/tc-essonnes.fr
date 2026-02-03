@@ -2,17 +2,27 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getAllNetworkPhotos, pickWeeklyPhoto, type WeeklyPhoto as WeeklyPhotoType } from "@/lib/weeklyPhoto";
+import type { Photo } from "@/lib/photos";
 
 export default function WeeklyPhoto() {
-  const [photo, setPhoto] = useState<WeeklyPhotoType | null>(null);
+  const [photo, setPhoto] = useState<(Photo & { network: string; href: string }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Note: Cette fonction s'exécute côté client, mais getAllNetworkPhotos
-    // doit être appelée via une API ou un effet côté serveur
-    // Pour une meilleure approche, utilisez le composant serveur en dessous
-    setLoading(false);
+    // Récupérer une photo aléatoire via l'API
+    const fetchRandomPhoto = async () => {
+      try {
+        const res = await fetch("/api/random-photo");
+        const data = await res.json();
+        setPhoto(data.photo);
+      } catch (error) {
+        console.error("Failed to fetch random photo:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRandomPhoto();
   }, []);
 
   if (loading) {
@@ -43,26 +53,31 @@ export default function WeeklyPhoto() {
         <img src="/icons/icon-heart.png" alt="" />
       </span>
 
-      <div className="photo-head">Photo du moment</div>
+      <div className="photo-head">Photo de la semaine</div>
 
-      <Link href={photo.href} className="photo-img-wrap" aria-label={photo.title}>
+      <Link 
+        href={`/gallery/network/${photo.slug}?photo=${encodeURIComponent(photo.src)}`}
+        className="photo-img-wrap" 
+        style={{ cursor: "pointer", display: "block" }}
+        title="Voir cette photo dans la galerie"
+      >
         <img
           src={photo.src}
           alt={photo.title}
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "100%", height: "auto", borderRadius: "8px" }}
         />
       </Link>
 
       <div className="photo-caption">
-        <Link href={photo.href} className="photo-caption-link">
+        <span style={{ fontWeight: 600, color: "#fff", display: "block", marginBottom: "8px" }}>
           {photo.title}
+        </span>
+        <Link 
+          href={`/gallery/network/${photo.slug}`}
+          style={{ fontSize: "0.85rem", opacity: 0.7, textDecoration: "none", color: "inherit" }}
+        >
+          → Voir la galerie
         </Link>
-        {photo.credit ? (
-          <>
-            {" "}
-            — <span style={{ opacity: 0.7 }}>{photo.credit}</span>
-          </>
-        ) : null}
       </div>
     </article>
   );

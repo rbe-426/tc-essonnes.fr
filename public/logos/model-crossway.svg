@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+  <defs>
+    <linearGradient id="crossway-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#999999;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#404040;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond transparent -->
+  <rect width="200" height="120" fill="none"/>
+  
+  <!-- Texte CROSSWAY en style moderne avec espacement -->
+  <text x="100" y="75" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="300" fill="url(#crossway-grad)" text-anchor="middle" letter-spacing="4">
+    CROSSWAY
+  </text>
+</svg>

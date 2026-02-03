@@ -2,10 +2,12 @@
 import "../styles/home.css";
 import AnecdoteCard from "../components/AnecdoteCard";
 import WeeklyPhoto from "../components/WeeklyPhoto";
+import FeaturedNetworks from "../components/FeaturedNetworks";
 import { DiscordWidget } from "../components/PhotoOfMonth";
+import StatsSection from "../components/StatsSection";
 
 import { getLatestPhotos } from "../lib/getLatestPhotos";
-import LatestAdditions from "../components/LatestAdditions";
+import LatestAdditionsWrapper from "../components/LatestAdditionsWrapper";
 
 export default function HomePage() {
   const latest = getLatestPhotos(20);
@@ -28,50 +30,7 @@ export default function HomePage() {
           </section>
 
           {/* STATS */}
-          <section className="bubble stats-section">
-            <h3>Par les chiffres</h3>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-number">1250+</span>
-                <span className="stat-label">Photos</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">12</span>
-                <span className="stat-label">Réseaux</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">5+</span>
-                <span className="stat-label">Années</span>
-              </div>
-            </div>
-          </section>
-
-          {/* RÉSEAUX EN VEDETTE */}
-          <section className="bubble featured-networks">
-            <h3>Réseaux principaux</h3>
-            <div className="networks-list">
-              <a href="/gallery/tisse" className="network-link">
-                <span className="network-icon">🚇</span>
-                <span className="network-name">TISSE</span>
-                <span className="network-count">180+ photos</span>
-              </a>
-              <a href="/gallery/ratp" className="network-link">
-                <span className="network-icon">🚌</span>
-                <span className="network-name">RATP</span>
-                <span className="network-count">250+ photos</span>
-              </a>
-              <a href="/gallery/reseau-ksvm" className="network-link">
-                <span className="network-icon">🚍</span>
-                <span className="network-name">KSVM</span>
-                <span className="network-count">120+ photos</span>
-              </a>
-              <a href="/gallery/rer" className="network-link">
-                <span className="network-icon">🚆</span>
-                <span className="network-name">RER</span>
-                <span className="network-count">95+ photos</span>
-              </a>
-            </div>
-          </section>
+          <StatsSection />
 
           {/* DERNIERS ARRIVAGES */}
           <section className="bubble tce-latest-card">
@@ -79,14 +38,15 @@ export default function HomePage() {
               <img src="/icons/icon-ok.png" alt="" className="tce-latest-icon" />
               <h3>Derniers Arrivages</h3>
             </header>
-            <LatestAdditions items={latest} initial={5} />
+            <LatestAdditionsWrapper initialItems={latest} initial={5} />
           </section>
         </div>
 
-        {/* COLONNE DROITE - CONSERVÉE INTACTE */}
+        {/* COLONNE DROITE */}
         <div className="home-side">
           <AnecdoteCard />
           <WeeklyPhoto />
+          <FeaturedNetworks />
           <DiscordWidget />
         </div>
       </div>
