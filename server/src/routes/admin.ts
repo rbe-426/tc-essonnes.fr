@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { AppDataSource } from "../../database";
-import { Photo } from "../../entities/Photo";
-import { Network } from "../../entities/Network";
+import { AppDataSource } from "../database";
+import { Photo } from "../entities/Photo";
+import { Network } from "../entities/Network";
 import fs from "fs";
 import path from "path";
 
@@ -23,7 +23,6 @@ const adminAuth = (req: any, res: any, next: any) => {
 function getNetworks() {
   const networksPath = path.join(
     __dirname,
-    "..",
     "..",
     "..",
     "..",

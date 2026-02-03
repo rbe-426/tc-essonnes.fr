@@ -1,206 +1,145 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getServerUrl } from "@/lib/serverUrl";
-
-type PhotoItem = { src: string; title?: string; description?: string };
+import { useState } from "react";
+import { X, Upload, CheckCircle, AlertCircle } from "lucide-react";
 
 interface ImportPhotosModalProps {
   isOpen: boolean;
-  photos: PhotoItem[];
-  folder: string;
   onClose: () => void;
-  onSave: () => void;
+  onImportComplete?: () => void;
 }
 
 export default function ImportPhotosModal({
   isOpen,
-  photos,
-  folder,
   onClose,
-  onSave,
+  onImportComplete,
 }: ImportPhotosModalProps) {
-  const [editedPhotos, setEditedPhotos] = useState<PhotoItem[]>(photos);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+  const [details, setDetails] = useState<any>(null);
 
-  // Mettre à jour editedPhotos quand photos change
-  useEffect(() => {
-    setEditedPhotos(photos);
-  }, [photos]);
+  const handleImport = async () => {
+    setIsImporting(true);
+    setStatus("idle");
+    setMessage("");
+    setDetails(null);
 
-  if (!isOpen) return null;
-
-  const handleTitleChange = (index: number, newTitle: string) => {
-    const updated = [...editedPhotos];
-    updated[index].title = newTitle;
-    setEditedPhotos(updated);
-  };
-
-  const handleDescriptionChange = (index: number, newDesc: string) => {
-    const updated = [...editedPhotos];
-    updated[index].description = newDesc;
-    setEditedPhotos(updated);
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
     try {
-      const serverUrl = getServerUrl();
-      const response = await fetch(`${serverUrl}/api/local-photos/save-batch`, {
+      const token = prompt(
+        "Entrez le token admin (ADMIN_TOKEN):",
+        ""
+      )?.trim();
+      if (!token) {
+        setStatus("error");
+        setMessage("Token requis");
+        setIsImporting(false);
+        return;
+      }
+
+      const response = await fetch("/api/admin/import-photos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          folder,
-          photos: editedPhotos,
-        }),
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      if (response.ok) {
-        onSave();
-        onClose();
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setStatus("success");
+        setMessage(
+          `✅ ${data.imported} photos importées (${data.skipped} doublons ignorés)`
+        );
+        setDetails(data.details);
+        onImportComplete?.();
       } else {
-        alert("Erreur lors de la sauvegarde");
+        setStatus("error");
+        setMessage(data.message || "Erreur lors de l'import");
       }
     } catch (error) {
-      console.error("Save error:", error);
-      alert("Erreur lors de la sauvegarde");
+      setStatus("error");
+      setMessage(
+        `Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`
+      );
     } finally {
-      setIsSaving(false);
+      setIsImporting(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 2000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: "8px",
-          padding: "24px",
-          maxWidth: "600px",
-          maxHeight: "80vh",
-          width: "90%",
-          overflowY: "auto",
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: "16px", fontSize: "1.5rem" }}>
-          Éditer les photos importées
-        </h2>
-
-        <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
-          {editedPhotos.map((photo, index) => (
-            <div
-              key={photo.src}
-              style={{
-                marginBottom: "20px",
-                paddingBottom: "20px",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  gap: "12px",
-                  marginBottom: "12px",
-                }}
-              >
-                <img
-                  src={photo.src}
-                  alt={photo.title}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    objectFit: "cover",
-                    borderRadius: "4px",
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <input
-                    type="text"
-                    placeholder="Titre"
-                    value={photo.title || ""}
-                    onChange={(e) => handleTitleChange(index, e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      marginBottom: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      fontWeight: "600",
-                    }}
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={photo.description || ""}
-                    onChange={(e) =>
-                      handleDescriptionChange(index, e.target.value)
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      minHeight: "60px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      fontFamily: "inherit",
-                      resize: "vertical",
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            marginTop: "20px",
-            justifyContent: "flex-end",
-          }}
-        >
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Importer les photos</h2>
           <button
             onClick={onClose}
-            disabled={isSaving}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#f0f0f0",
-              border: "none",
-              borderRadius: "4px",
-              cursor: isSaving ? "not-allowed" : "pointer",
-              fontWeight: "600",
-              opacity: isSaving ? 0.5 : 1,
-            }}
+            className="p-1 hover:bg-gray-100 rounded-lg transition"
           >
-            Annuler
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="mb-6">
+          <p className="text-gray-600 text-sm mb-4">
+            Cet outil importera toutes les photos des dossiers JSON vers la base de données PostgreSQL.
+          </p>
+          <p className="text-gray-700 text-sm font-semibold mb-2">
+            ⚠️ Important:
+          </p>
+          <ul className="text-gray-600 text-sm space-y-1 list-disc list-inside">
+            <li>Les photos déjà en DB seront ignorées</li>
+            <li>Les métadonnées (titre, description) seront préservées</li>
+            <li>Cela peut prendre quelques secondes</li>
+          </ul>
+        </div>
+
+        {/* Status Messages */}
+        {status === "success" && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 flex gap-3">
+            <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+            <div className="text-sm">
+              <p className="font-semibold text-green-700">{message}</p>
+              {details && (
+                <details className="mt-2 cursor-pointer text-gray-600 text-xs">
+                  <summary>Voir les détails</summary>
+                  <pre className="mt-2 bg-white p-2 rounded border border-green-200 overflow-auto max-h-48 text-xs">
+                    {JSON.stringify(details, null, 2)}
+                  </pre>
+                </details>
+              )}
+            </div>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+            <p className="text-sm font-semibold text-red-700">{message}</p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            disabled={isImporting}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition font-medium text-sm"
+          >
+            Fermer
           </button>
           <button
-            onClick={handleSave}
-            disabled={isSaving}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#4CAF50",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: isSaving ? "not-allowed" : "pointer",
-              fontWeight: "600",
-              opacity: isSaving ? 0.5 : 1,
-            }}
+            onClick={handleImport}
+            disabled={isImporting}
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium text-sm flex items-center justify-center gap-2"
           >
-            {isSaving ? "⏳ Sauvegarde..." : "✅ Enregistrer"}
+            <Upload size={16} />
+            {isImporting ? "Import en cours..." : "Importer"}
           </button>
         </div>
       </div>

@@ -17,45 +17,7 @@ export default function NetworkPageClient({
   photos,
 }: NetworkPageClientProps) {
   const { isEditMode, setIsEditMode } = useEditContext();
-  const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [uploadedPhotos, setUploadedPhotos] = useState<PhotoItem[]>([]);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
-    if (!files || files.length === 0) return;
-
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
-      formData.append("folder", networkName);
-
-      const response = await fetch("/api/photos/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUploadedPhotos(data.photos || []);
-        setIsModalOpen(true);
-      } else {
-        alert("Erreur lors de l'import des photos");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("Erreur lors de l'import");
-    } finally {
-      setIsUploading(false);
-      // Reset input
-      if (e.currentTarget) {
-        e.currentTarget.value = "";
-      }
-    }
-  };
 
   return (
     <>
@@ -70,42 +32,28 @@ export default function NetworkPageClient({
 
         {isEditMode && (
           <div style={{ display: "flex", gap: "8px" }}>
-            <input
-              type="file"
-              id="photo-upload"
-              multiple
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleFileUpload}
-              disabled={isUploading}
-            />
             <button
-              onClick={() => document.getElementById("photo-upload")?.click()}
-              disabled={isUploading}
+              onClick={() => setIsModalOpen(true)}
               style={{
                 padding: "8px 16px",
-                backgroundColor: isUploading ? "#ccc" : "#2196F3",
+                backgroundColor: "#2196F3",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
                 fontWeight: "600",
                 fontSize: "0.9rem",
                 whiteSpace: "nowrap",
-                cursor: isUploading ? "not-allowed" : "pointer",
+                cursor: "pointer",
                 transition: "all 0.2s ease",
               }}
               onMouseEnter={(e) => {
-                if (!isUploading) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#0b7dda";
-                }
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#0b7dda";
               }}
               onMouseLeave={(e) => {
-                if (!isUploading) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2196F3";
-                }
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2196F3";
               }}
             >
-              {isUploading ? "⏳ Upload..." : "➕ Ajouter des photos"}
+              ⬆️ Importer photos
             </button>
             <button
               onClick={() => setIsEditMode(!isEditMode)}
@@ -144,13 +92,12 @@ export default function NetworkPageClient({
 
       <ImportPhotosModal
         isOpen={isModalOpen}
-        photos={uploadedPhotos}
-        folder={networkName}
         onClose={() => {
           setIsModalOpen(false);
+        }}
+        onImportComplete={() => {
           window.location.reload();
         }}
-        onSave={() => window.location.reload()}
       />
     </>
   );
