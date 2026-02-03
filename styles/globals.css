@@ -7,7 +7,7 @@ a { text-decoration: none; color: inherit; }
 
 /* Abribus décoratif fixé à gauche */
 :root {
-  --decor-left-w: 72px;
+  --decor-left-w: 98px;
   --decor-left-bottom: 12vh;
 }
 

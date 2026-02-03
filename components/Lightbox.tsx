@@ -200,7 +200,6 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
         {/* Colonne texte à droite */}
         <aside className="lb-right">
-          {console.log("Photo data:", it) /* DEBUG */}
           {it.brand && (() => {
             const brand = getBusBrandBySlug(it.brand);
             return brand ? (
