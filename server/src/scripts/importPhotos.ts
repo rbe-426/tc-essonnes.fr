@@ -6,7 +6,7 @@ import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
 
 // Networks hardcodés (liste complète)
-const networks = [
+let networks: any[] = [
   { slug: "tisse", name: "TISSE", href: "/gallery/network/tisse" },
   { slug: "ratp", name: "RATP", href: "/gallery/network/ratp" },
   { slug: "kvyvs", name: "KVYVS", href: "/gallery/network/kvyvs" },

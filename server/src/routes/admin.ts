@@ -19,23 +19,22 @@ const adminAuth = (req: any, res: any, next: any) => {
   next();
 };
 
-// Charger les networks
+// Charger les networks (hardcodé pour fiabilité)
 function getNetworks() {
-  const networksPath = path.join(
-    __dirname,
-    "..",
-    "..",
-    "..",
-    "content",
-    "networks"
-  );
-  try {
-    delete require.cache[require.resolve(networksPath)];
-    const networksModule = require(networksPath);
-    return networksModule.networks || [];
-  } catch {
-    return [];
-  }
+  return [
+    { slug: "tisse", name: "TISSE", href: "/gallery/network/tisse" },
+    { slug: "ratp", name: "RATP", href: "/gallery/network/ratp" },
+    { slug: "kvyvs", name: "KVYVS", href: "/gallery/network/kvyvs" },
+    { slug: "rer", name: "RER", href: "/gallery/network/rer" },
+    { slug: "ratp_cap_saclay", name: "RATP Cap Saclay", href: "/gallery/network/ratp_cap_saclay" },
+    { slug: "nav_rerd", name: "Navigation RERD", href: "/gallery/network/nav_rerd" },
+    { slug: "reseau-t12", name: "Réseau T12", href: "/gallery/network/reseau-t12" },
+    { slug: "reseau-ksvm", name: "Réseau KSVM", href: "/gallery/network/reseau-ksvm" },
+    { slug: "cars-soeur", name: "Cars Soeur", href: "/gallery/network/cars-soeur" },
+    { slug: "retrobus-essonne", name: "Retrobus Essonne", href: "/gallery/network/retrobus-essonne" },
+    { slug: "transdev-coeur-essonne", name: "Transdev Coeur Essonne", href: "/gallery/network/transdev-coeur-essonne" },
+    { slug: "transdev-senart", name: "Transdev Sénart", href: "/gallery/network/transdev-senart" },
+  ];
 }
 
 // Lire les métadonnées des photos depuis photos.json
