@@ -40,14 +40,15 @@ export function getLatestPhotos(limit = 20): LatestItem[] {
       const ext = path.extname(name).toLowerCase();
       if (!VALID.has(ext)) continue;
       const stat = fs.statSync(path.join(dir, name));
+      const fullPath = path.posix.join("/photos", folder, name);
       items.push({
         href: n.href || `/gallery/network/${folder}`,
         slug: folder,
-        src: path.posix.join("/photos", folder, name),
-        title: meta[name]?.title ?? null,
-        description: meta[name]?.description ?? null,
-        brand: meta[name]?.brand ?? null,
-        model: meta[name]?.model ?? null,
+        src: fullPath,
+        title: meta[fullPath]?.title ?? null,
+        description: meta[fullPath]?.description ?? null,
+        brand: meta[fullPath]?.brand ?? null,
+        model: meta[fullPath]?.model ?? null,
         mtime: stat.mtime.getTime(),
       });
     }
