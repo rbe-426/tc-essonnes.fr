@@ -1,10 +1,12 @@
 import "dotenv/config";
 import fs from "fs";
 import path from "path";
-import { AppDataSource } from "./database";
-import { Photo } from "./entities/Photo";
-import { Network } from "./entities/Network";
-import { networks } from "../content/networks";
+import { AppDataSource } from "../database";
+import { Photo } from "../entities/Photo";
+import { Network } from "../entities/Network";
+
+// Charger les networks depuis le fichier TypeScript principal
+const networks = require(path.join(process.cwd(), "content", "networks")).networks || [];
 
 const VALID = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 

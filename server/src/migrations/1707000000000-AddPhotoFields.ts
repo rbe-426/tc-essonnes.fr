@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
+import { MigrationInterface, QueryRunner, TableColumn, TableIndex } from "typeorm";
 
 export class AddPhotoFields1707000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -43,10 +43,10 @@ export class AddPhotoFields1707000000000 implements MigrationInterface {
     // Index pour requêtes rapides par slug
     await queryRunner.createIndex(
       "photos",
-      {
+      new TableIndex({
         name: "IDX_photos_slug",
         columnNames: ["slug"]
-      }
+      })
     );
   }
 
