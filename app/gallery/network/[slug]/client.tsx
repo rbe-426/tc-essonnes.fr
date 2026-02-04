@@ -10,11 +10,13 @@ type PhotoItem = { src: string; title?: string; description?: string };
 interface NetworkPageClientProps {
   networkName: string;
   photos: PhotoItem[];
+  networkSlug: string;
 }
 
 export default function NetworkPageClient({
   networkName,
   photos,
+  networkSlug,
 }: NetworkPageClientProps) {
   const { isEditMode, setIsEditMode } = useEditContext();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
