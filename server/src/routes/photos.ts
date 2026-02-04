@@ -29,20 +29,34 @@ router.get("/latest", async (req: any, res: any) => {
         "photo.brand",
         "photo.model",
         "photo.createdAt",
+        "photo.imageData",  // Ajouter pour vérifier que l'image existe
       ])
       .getMany();
 
-    const mapped = photos.map(p => ({
-      href: `/gallery/network/${p.slug}`,
-      slug: p.slug,
-      src: `/api/photos/${p.slug}/image/${p.id}`,  // URL pour servir l'image depuis le backend
-      title: p.displayTitle || p.title || null,
-      description: p.displayDesc || p.desc || null,
-      brand: p.brand || null,
-      model: p.model || null,
-      mtime: new Date(p.createdAt).getTime(),
-    }));
+    console.log(`📊 Total photos en DB: ${photos.length}`);
 
+    const mapped = photos.map(p => {
+      if (!p.slug) {
+        console.warn(`⚠️ Photo ${p.id} n'a pas de slug`);
+        return null;
+      }
+      if (!p.imageData) {
+        console.warn(`⚠️ Photo ${p.id} (${p.slug}) n'a pas d'imageData`);
+        return null;
+      }
+      return {
+        href: `/gallery/network/${p.slug}`,
+        slug: p.slug,
+        src: `/api/photos/${p.slug}/image/${p.id}`,
+        title: p.displayTitle || p.title || null,
+        description: p.displayDesc || p.desc || null,
+        brand: p.brand || null,
+        model: p.model || null,
+        mtime: new Date(p.createdAt).getTime(),
+      };
+    }).filter(p => p !== null);
+
+    console.log(`✓ ${mapped.length} photos retournées (${photos.length - mapped.length} filtrées)`);
     return res.json({ success: true, items: mapped });
   } catch (error) {
     console.error("Error fetching latest photos:", error);
@@ -108,14 +122,23 @@ router.get("/:networkSlug", async (req: any, res: any) => {
       order: { order: "ASC" },
     });
 
-    // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
-    const mappedPhotos = photos.map((p: Photo) => ({
-      ...p,
-      src: `/api/photos/${p.slug}/image/${p.id}`,  // URL pour servir l'image depuis le backend
-      displayTitle: p.displayTitle || p.title,
-      displayDesc: p.displayDesc || p.desc,
-    }));
+    console.log(`📊 ${networkSlug}: ${photos.length} photos en DB`);
 
+    // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
+    const mappedPhotos = photos.map((p: Photo) => {
+      if (!p.imageData) {
+        console.warn(`⚠️ Photo ${p.id} (${p.slug}) n'a pas d'imageData`);
+        return null;
+      }
+      return {
+        ...p,
+        src: `/api/photos/${p.slug}/image/${p.id}`,
+        displayTitle: p.displayTitle || p.title,
+        displayDesc: p.displayDesc || p.desc,
+      };
+    }).filter(p => p !== null);
+
+    console.log(`✓ ${mappedPhotos.length} photos valides`);
     return res.json({ success: true, photos: mappedPhotos, network });
   } catch (error) {
     console.error("Erreur GET photos:", error);
