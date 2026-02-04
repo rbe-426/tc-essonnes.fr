@@ -26,23 +26,30 @@ export default function ImportPhotosModal({
     setDetails(null);
 
     try {
-      const token = prompt(
-        "Entrez le token admin (ADMIN_TOKEN):",
-        ""
-      )?.trim();
-      if (!token) {
+      // En production, un token est requis (géré par le backend)
+      // En dev, pas besoin
+      const token = process.env.NODE_ENV === "production" 
+        ? prompt("Entrez le token admin (ADMIN_TOKEN):", "")?.trim()
+        : "";
+
+      if (process.env.NODE_ENV === "production" && !token) {
         setStatus("error");
         setMessage("Token requis");
         setIsImporting(false);
         return;
       }
 
+      const headers: any = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/admin/import-photos", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers,
       });
 
       const data = await response.json();

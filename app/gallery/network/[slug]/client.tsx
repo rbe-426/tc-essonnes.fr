@@ -3,7 +3,6 @@
 import { useEditContext } from "@/contexts/EditContext";
 import PhotoGrid from "../../../../components/PhotoGrid";
 import ImportPhotosModal from "../../../../components/ImportPhotosModal";
-import UploadPhotosModal from "../../../../components/UploadPhotosModal";
 import { useState } from "react";
 
 type PhotoItem = { src: string; title?: string; description?: string };
@@ -11,17 +10,14 @@ type PhotoItem = { src: string; title?: string; description?: string };
 interface NetworkPageClientProps {
   networkName: string;
   photos: PhotoItem[];
-  networkSlug: string;
 }
 
 export default function NetworkPageClient({
   networkName,
   photos,
-  networkSlug,
 }: NetworkPageClientProps) {
   const { isEditMode, setIsEditMode } = useEditContext();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   return (
     <>
@@ -36,30 +32,6 @@ export default function NetworkPageClient({
 
         {isEditMode && (
           <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#FF9800",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                whiteSpace: "nowrap",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F57C00";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FF9800";
-              }}
-              title="Ajouter de nouvelles photos (sauvegardées en DB)"
-            >
-              ➕ Ajouter photos
-            </button>
             <button
               onClick={() => setIsImportModalOpen(true)}
               style={{
@@ -80,7 +52,6 @@ export default function NetworkPageClient({
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2196F3";
               }}
-              title="Importer depuis les fichiers JSON"
             >
               ⬆️ Importer JSON
             </button>
@@ -127,18 +98,6 @@ export default function NetworkPageClient({
         onImportComplete={() => {
           window.location.reload();
         }}
-      />
-
-      <UploadPhotosModal
-        isOpen={isUploadModalOpen}
-        onClose={() => {
-          setIsUploadModalOpen(false);
-        }}
-        onUploadComplete={() => {
-          window.location.reload();
-        }}
-        networkSlug={networkSlug}
-        folder={networkSlug}
       />
     </>
   );
