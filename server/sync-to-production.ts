@@ -10,7 +10,7 @@ import { createConnection, Connection } from "typeorm";
  */
 
 const PROD_DB_URL = process.env.PRODUCTION_DATABASE_URL || 
-  "postgresql://postgres:sfobzalOXkHOLvwEOJBXsfchOpvZUOjF@postgres-4yt1.railway.internal:5432/railway";
+  "postgresql://postgres:sfobzalOXkHOLvwEOJBXsfchOpvZUOjF@interchange.proxy.rlwy.net:57688/railway";
 
 async function syncPhotosToProduction() {
   console.log("🔄 Synchronisation des photos en production...\n");
