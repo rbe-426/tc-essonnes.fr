@@ -138,8 +138,8 @@ router.post("/:networkSlug", authMiddleware, async (req: any, res: any) => {
   }
 });
 
-// PUT mettre à jour une photo (authentifié)
-router.put("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) => {
+// PUT mettre à jour une photo (accessible pour gallery management)
+router.put("/:networkSlug/:photoId", async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
     const { displayTitle, displayDesc, date, order } = req.body;
