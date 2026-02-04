@@ -7,7 +7,7 @@ import PhotoEditModal from "./PhotoEditModal";
 import { useEditContext } from "@/contexts/EditContext";
 import { getServerUrl } from "@/lib/serverUrl";
 
-type Item = { src: string; title?: string; description?: string; brand?: string; model?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string };
 
 function fileTitleFallback(src: string) {
   try {
@@ -52,25 +52,35 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
     if (!confirm(`Supprimer "${title}"?`)) return;
 
     try {
-      const networkName = window.location.pathname.split("/").pop();
+      const networkSlug = window.location.pathname.split("/").pop();
       const serverUrl = getServerUrl();
+      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
       
-      const response = await fetch(`${serverUrl}/api/local-photos/delete`, {
+      // Must have id from DB
+      if (!photo.id) {
+        console.error("❌ Photo n'a pas d'ID - elle vient pas de la BD", photo);
+        alert("Erreur: Photo sans ID (non synchronisée en BD)");
+        return;
+      }
+      
+      const response = await fetch(`${serverUrl}/api/photos/${networkSlug}/${photo.id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          folder: networkName,
-          src: photo.src,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
+        },
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
         setItems(items.filter(p => p.src !== photo.src));
         alert("Photo supprimée!");
         // Émettre un event pour que l'accueil se recharge
         window.dispatchEvent(new Event("photos-updated"));
       } else {
-        alert("Erreur lors de la suppression");
+        console.error("Erreur serveur:", data);
+        alert(`Erreur: ${data.message || "Suppression échouée"}`);
       }
     } catch (error) {
       console.error("Erreur suppression:", error);

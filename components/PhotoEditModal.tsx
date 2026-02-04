@@ -5,6 +5,7 @@ import { getServerUrl } from "@/lib/serverUrl";
 import { busBrands, busModels } from "@/content/busModels";
 
 interface Photo {
+  id?: string;
   src?: string;
   title?: string;
   description?: string;

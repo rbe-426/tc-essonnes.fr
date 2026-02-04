@@ -47,6 +47,7 @@ async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
         src: p.src,
         title: p.displayTitle || p.title,
         description: p.displayDesc || p.desc,
+        id: p.id,
       }));
     }
     return [];
@@ -119,11 +120,8 @@ export default async function NetworkPage({ params }: { params: { slug: string }
     (net as any).folder ||
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
-  // Essayer la BD d'abord, puis fallback sur les fichiers
-  let photos = await readPhotosFromDatabase(net.slug);
-  if (photos.length === 0) {
-    photos = readPhotosFromFolder(folder);
-  }
+  // Utiliser UNIQUEMENT la BD (architecture 100% DB comme voulu)
+  const photos = await readPhotosFromDatabase(net.slug);
   const networkSlug = net.slug;
 
   return (

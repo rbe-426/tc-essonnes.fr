@@ -175,8 +175,8 @@ router.put("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) 
   }
 });
 
-// DELETE une photo (authentifié)
-router.delete("/:networkSlug/:photoId", authMiddleware, async (req: any, res: any) => {
+// DELETE une photo (accessible librement pour gallery management)
+router.delete("/:networkSlug/:photoId", async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
     const fs = require("fs");
