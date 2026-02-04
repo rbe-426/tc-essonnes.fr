@@ -56,17 +56,17 @@ body { background: var(--anthracite); }
 /* ==== Décor gauche (abribus) ==== */
 /* ==== Décor gauche (abribus : du dessous du header jusqu'en bas) ==== */
 :root{
-  --abribus-w: 300px;  /* largeur de la bande à gauche */
+  --abribus-w: 600px;  /* largeur de la bande à gauche */
 }
 
 :root{
-  --abribus-w: 300px;           /* largeur de la bande à gauche */
+  --abribus-w: 600px;           /* largeur de la bande à gauche */
 }
 
 /* Bande abribus = image non déformée (hauteur 100%, largeur auto) */
 /* ===== Abribus discret : réglages via variables ===== */
 :root{
-  --abribus-w: 300px;          /* largeur de la bande à gauche */
+  --abribus-w: 600px;          /* largeur de la bande à gauche */
   --abribus-opacity: .12;       /* transparence globale (0–1) */
   --abribus-gray: 1;            /* 1 = N&B, 0 = couleur */
   --abribus-sat: .18;           /* saturation résiduelle */
