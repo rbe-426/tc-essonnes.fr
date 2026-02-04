@@ -12,18 +12,20 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(defaultText);
   const [isLocalhost, setIsLocalhost] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Vérifier si on est en localhost
-    const isLocal = typeof window !== 'undefined' && 
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    setIsLocalhost(isLocal);
-
-    // Charger le texte du localStorage
+    // Charger le texte du localStorage (valide pour localhost ET production)
     const saved = localStorage.getItem(`editable-text-${id}`);
     if (saved) {
       setText(saved);
     }
+
+    // Vérifier si on est en localhost
+    const isLocal = typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    setIsLocalhost(isLocal);
+    setIsLoaded(true);
   }, [id]);
 
   const handleSave = () => {
@@ -36,10 +38,16 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
     setIsEditing(false);
   };
 
+  if (!isLoaded) {
+    return <p className={className}>{text}</p>;
+  }
+
+  // En production: afficher juste le texte
   if (!isLocalhost) {
     return <p className={className}>{text}</p>;
   }
 
+  // En localhost: mode édition activé
   if (isEditing) {
     return (
       <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
@@ -91,6 +99,7 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
     );
   }
 
+  // En localhost: affichage avec possibilité d'éditer
   return (
     <p 
       className={className}
