@@ -10,10 +10,24 @@ import NetworkPageClient from "./client";
 
 export const runtime = "nodejs";
 const VALID_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
-type PhotoItem = { src: string; title?: string; description?: string };
+type PhotoItem = { src: string; title?: string; description?: string; id?: string };
 
 const norm = (s: string) =>
   String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+// Générer un ID simple pour les photos du fallback filesystem
+function generateFallbackId(src: string): string {
+  // Utiliser le nom de fichier comme base pour l'ID (pour coherence)
+  const filename = src.split("/").pop() || src;
+  // Simple hash du filename pour garantir unicité
+  let hash = 0;
+  for (let i = 0; i < filename.length; i++) {
+    const char = filename.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return filename + "-" + Math.abs(hash).toString(36);
+}
 
 const photosDir = (folder: string) => path.join(process.cwd(), "public", "photos", folder);
 
@@ -73,10 +87,12 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
         .filter((p) => typeof p?.src === "string")
         .map((p) => {
           const file = cleanSrc(folder, p.src);
+          const src = path.posix.join("/photos", folder, file);
           return {
-            src: path.posix.join("/photos", folder, file),
+            src: src,
             title: p.title,
             description: p.description,
+            id: generateFallbackId(src),
           };
         });
     } catch (err) {
@@ -91,10 +107,12 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
     const base = path.basename(file, path.extname(file));
     const sidecarPath = path.join(dir, `${base}.json`);
     const meta = fs.existsSync(sidecarPath) ? readSidecarJson(sidecarPath) : {};
+    const src = path.posix.join("/photos", folder, file);
     return {
-      src: path.posix.join("/photos", folder, file),
+      src: src,
       title: meta.title,
       description: meta.description,
+      id: generateFallbackId(src),
     };
   });
 }
@@ -120,8 +138,12 @@ export default async function NetworkPage({ params }: { params: { slug: string }
     (net as any).folder ||
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
-  // Utiliser UNIQUEMENT la BD (architecture 100% DB comme voulu)
-  const photos = await readPhotosFromDatabase(net.slug);
+  // Utiliser la BD en priorité, fallback sur les fichiers si indisponible
+  let photos = await readPhotosFromDatabase(net.slug);
+  if (photos.length === 0) {
+    console.warn(`⚠️ BD vide ou indisponible pour ${net.slug}, utilisation du fallback filesystem`);
+    photos = readPhotosFromFolder(folder);
+  }
   const networkSlug = net.slug;
 
   return (
