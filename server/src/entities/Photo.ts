@@ -39,6 +39,9 @@ export class Photo {
   @Column({ type: "integer", default: 0 })
   order: number;
 
+  @Column({ type: "text", nullable: true })
+  imageData: string; // Image compressée stockée en base64 (stockage 100% DB)
+
   @ManyToOne(() => Network, (network) => network.photos, { onDelete: "CASCADE" })
   @JoinColumn({ name: "networkId" })
   network: Network;

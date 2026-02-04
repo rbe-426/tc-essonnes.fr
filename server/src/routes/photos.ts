@@ -50,6 +50,30 @@ router.get("/latest", async (req: any, res: any) => {
   }
 });
 
+// GET l'image d'une photo (stockée en base64 dans la DB)
+router.get("/:networkSlug/image/:photoId", async (req: any, res: any) => {
+  try {
+    const { networkSlug, photoId } = req.params;
+
+    const photo = await photoRepository.findOne({
+      where: { id: photoId, slug: networkSlug },
+    });
+
+    if (!photo || !photo.imageData) {
+      return res.status(404).json({ success: false, message: "Image non trouvée" });
+    }
+
+    // Convertir le base64 en buffer et servir comme image
+    const imageBuffer = Buffer.from(photo.imageData, "base64");
+    res.setHeader("Content-Type", "image/webp");
+    res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache 1 an
+    return res.send(imageBuffer);
+  } catch (error) {
+    console.error("Error fetching image:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+
 // GET toutes les photos d'un réseau
 router.get("/:networkSlug", async (req: any, res: any) => {
   try {
