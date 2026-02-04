@@ -41,7 +41,6 @@ export default async function HomePage() {
               id="hero-text"
               defaultText="Une photothèque complète dédiée aux transports en Île-de-France. Explorez des centaines de clichés des réseaux les plus emblématiques de la région."
             />
-            <a href="/gallery" className="cta-button">Explorer la galerie</a>
           </section>
         </div>
 
