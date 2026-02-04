@@ -9,7 +9,7 @@ export function getServerUrl(): string {
     
     // Fallback: si localhost et pas de NEXT_PUBLIC_API_URL, utiliser local
     if (window.location.hostname === "localhost") {
-      return "http://localhost:5000";
+      return "http://localhost:3001";
     }
   }
 
