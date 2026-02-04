@@ -21,6 +21,17 @@ function extractNumberFromTitle(title: string): number {
   return match ? parseInt(match[0], 10) : Infinity;
 }
 
+// Normaliser l'URL de l'image - ajouter le serverUrl si relatif
+function normalizeImageUrl(src: string): string {
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src; // Déjà absolu
+  }
+  if (src.startsWith("/api/")) {
+    return getServerUrl() + src; // Ajouter le serverUrl
+  }
+  return src; // Supposément un chemin fichier statique
+}
+
 export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
   const { isEditMode } = useEditContext();
   const [items, setItems] = useState<Item[]>(initialItems);
@@ -134,7 +145,7 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
               >
                 <div className="photo-thumb">
                   <img 
-                    src={p.src} 
+                    src={normalizeImageUrl(p.src)} 
                     alt={title}
                     loading="lazy"
                     decoding="async"

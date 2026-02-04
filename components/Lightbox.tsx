@@ -3,8 +3,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getBusBrandBySlug, getBusModelBySlug } from "@/content/busModels";
+import { getServerUrl } from "@/lib/serverUrl";
 
 type Item = { src: string; title?: string; description?: string; brand?: string; model?: string };
+
+// Normaliser l'URL de l'image
+function normalizeImageUrl(src: string): string {
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src;
+  }
+  if (src.startsWith("/api/")) {
+    return getServerUrl() + src;
+  }
+  return src;
+}
 
 export default function Lightbox({ items }: { items: Item[] }) {
   const [open, setOpen] = useState(false);
@@ -115,7 +127,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
           onWheel={handleWheel}
         >
           <img 
-            src={it.src} 
+            src={normalizeImageUrl(it.src)} 
             alt={it.title || ""} 
             loading="eager"
             decoding="async"
@@ -173,7 +185,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
           }}
         >
           <img 
-            src={it.src} 
+            src={normalizeImageUrl(it.src)} 
             alt={it.title || ""} 
             loading="eager"
             decoding="async"

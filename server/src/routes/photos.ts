@@ -54,22 +54,41 @@ router.get("/latest", async (req: any, res: any) => {
 router.get("/:networkSlug/image/:photoId", async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
+    console.log(`🖼️ Demande image: networkSlug=${networkSlug}, photoId=${photoId}`);
 
+    // Chercher la photo par ID et vérifier que le slug correspond
     const photo = await photoRepository.findOne({
       where: { id: photoId, slug: networkSlug },
+      relations: ["network"],
     });
 
-    if (!photo || !photo.imageData) {
-      return res.status(404).json({ success: false, message: "Image non trouvée" });
+    if (!photo) {
+      console.error(`❌ Photo non trouvée: id=${photoId}, slug=${networkSlug}`);
+      return res.status(404).json({ success: false, message: "Photo non trouvée" });
     }
 
+    if (!photo.imageData) {
+      console.error(`❌ Pas de imageData pour la photo ${photoId}`);
+      return res.status(404).json({ success: false, message: "Image manquante" });
+    }
+
+    console.log(`✓ Trouvée. ImageData size: ${photo.imageData.length} bytes (base64)`);
+
     // Convertir le base64 en buffer et servir comme image
-    const imageBuffer = Buffer.from(photo.imageData, "base64");
-    res.setHeader("Content-Type", "image/webp");
-    res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache 1 an
-    return res.send(imageBuffer);
+    try {
+      const imageBuffer = Buffer.from(photo.imageData, "base64");
+      console.log(`✓ Buffer créé: ${imageBuffer.length} bytes`);
+      
+      res.setHeader("Content-Type", "image/webp");
+      res.setHeader("Content-Length", imageBuffer.length);
+      res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache 1 an
+      return res.send(imageBuffer);
+    } catch (decodeErr) {
+      console.error(`❌ Erreur décodage base64:`, decodeErr);
+      return res.status(500).json({ success: false, message: "Erreur décodage image" });
+    }
   } catch (error) {
-    console.error("Error fetching image:", error);
+    console.error("❌ Error fetching image:", error);
     return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });

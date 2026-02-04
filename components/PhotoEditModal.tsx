@@ -21,6 +21,17 @@ interface PhotoEditModalProps {
   folder?: string;
 }
 
+function normalizeImageUrl(src: string | undefined): string | undefined {
+  if (!src) return undefined;
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src;
+  }
+  if (src.startsWith("/api/")) {
+    return getServerUrl() + src;
+  }
+  return src;
+}
+
 export default function PhotoEditModal({
   photo,
   isOpen,
@@ -141,7 +152,7 @@ export default function PhotoEditModal({
             }}
           >
             <img
-              src={editPhoto.src}
+              src={normalizeImageUrl(editPhoto.src)}
               alt="Preview"
               style={{
                 width: "100%",
