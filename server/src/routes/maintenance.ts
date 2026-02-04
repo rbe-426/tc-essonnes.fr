@@ -48,31 +48,29 @@ router.post("/cleanup", async (req: Request, res: Response) => {
     
     let removed = 0;
 
-    for (const net of networks) {
-      const folder = net.slug;
-      const folderPath = path.join(projectRoot, "public", "photos", folder);
+    // Récupérer TOUTES les photos en BD
+    const allPhotos = await photoRepository.find();
+    console.log(`🔍 Vérification de ${allPhotos.length} photos en BD...`);
 
-      // Récupérer toutes les photos de ce réseau en DB
-      const photosInDB = await photoRepository.find({
-        where: { slug: folder }
-      });
-
-      for (const photo of photosInDB) {
-        // Vérifier si le fichier existe
-        const filePath = path.join(projectRoot, "public", photo.src);
-        
-        if (!fs.existsSync(filePath)) {
-          // Fichier supprimé → supprimer de la DB
-          await photoRepository.remove(photo);
-          removed++;
-          console.log(`🗑️ Supprimé de la DB: ${photo.src}`);
-        }
+    for (const photo of allPhotos) {
+      // Vérifier si le fichier existe
+      const filePath = path.join(projectRoot, "public", photo.src);
+      
+      if (!fs.existsSync(filePath)) {
+        // Fichier supprimé → supprimer de la DB
+        await photoRepository.remove(photo);
+        removed++;
+        console.log(`🗑️ Supprimé de la DB: ${photo.src}`);
       }
     }
 
+    console.log(`✓ Nettoyage terminé: ${removed} photo(s) supprimée(s)`);
+
     res.json({
       success: true,
-      message: `${removed} photo(s) supprimée(s) de la base de données`
+      message: `${removed} photo(s) supprimée(s) de la base de données`,
+      checked: allPhotos.length,
+      removed: removed
     });
   } catch (error) {
     console.error("❌ Erreur nettoyage:", error);
