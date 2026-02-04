@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const VALID_ID = "w.belaidi";
 const VALID_PASSWORD = "Waiyl9134#";
 

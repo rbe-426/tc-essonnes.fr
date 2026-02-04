@@ -2,6 +2,9 @@ import { networks } from "@/content/networks";
 import path from "path";
 import fs from "fs";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const counts: Record<string, number> = {};

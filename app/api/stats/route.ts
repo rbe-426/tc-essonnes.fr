@@ -2,6 +2,9 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { networks } from "@/content/networks";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const photosDir = join(process.cwd(), "public/photos");

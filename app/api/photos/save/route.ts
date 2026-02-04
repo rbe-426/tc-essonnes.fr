@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, readFile } from "fs/promises";
 import { join } from "path";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const { folder, photos } = await request.json();
