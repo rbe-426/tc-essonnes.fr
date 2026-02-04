@@ -13,6 +13,6 @@ export function getServerUrl(): string {
     }
   }
 
-  // Default production - ajuster l'URL à votre domaine Railway réel
+  // Default production - Railway expose sur HTTPS sans port
   return "https://innovative-serenity-rbe-serveurs.up.railway.app";
 }
