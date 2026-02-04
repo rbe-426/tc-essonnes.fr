@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const limit = searchParams.get("limit") || "20";
 
     // Appeler le backend
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
     const res = await fetch(`${backendUrl}/api/photos/latest?limit=${limit}`);
 
     if (!res.ok) {

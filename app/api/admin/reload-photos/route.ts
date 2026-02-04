@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
     const res = await fetch(`${backendUrl}/api/photos/latest?limit=100`, {
       cache: "no-store"
     });

@@ -67,7 +67,7 @@ function getFromFiles(limit = 20): LatestItem[] {
 // Fetch depuis l'API (source de vérité PostgreSQL)
 async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
   try {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
     const res = await fetch(`${backendUrl}/api/photos/latest?limit=${limit}`, {
       cache: "no-store"
     });
