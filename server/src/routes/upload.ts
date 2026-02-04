@@ -28,8 +28,9 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
     const files = req.files as Express.Multer.File[] || [];
     const titles = req.body["titles[]"] || [];
     const descriptions = req.body["descriptions[]"] || [];
+    const networkSlug = req.body.networkSlug || "imported"; // Utilise "imported" par défaut
 
-    console.log(`📸 Upload de ${files.length} photos reçu`);
+    console.log(`📸 Upload de ${files.length} photos pour le réseau: ${networkSlug}`);
 
     if (files.length === 0) {
       return res.status(400).json({ success: false, error: "Aucun fichier" });
@@ -39,14 +40,15 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
     const networkRepository = AppDataSource.getRepository(Network);
     const savedPhotos = [];
 
-    // Récupérer ou créer le réseau "imported"
-    let network = await networkRepository.findOne({ where: { slug: "imported" } });
+    // Récupérer ou créer le réseau
+    let network = await networkRepository.findOne({ where: { slug: networkSlug } });
     if (!network) {
       network = networkRepository.create({
-        slug: "imported",
-        name: "Photos Importées",
+        slug: networkSlug,
+        name: networkSlug.toUpperCase().replace(/-/g, " "),
       });
       await networkRepository.save(network);
+      console.log(`✓ Réseau créé: ${networkSlug}`);
     }
 
     // Traiter chaque fichier
@@ -60,12 +62,12 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
         const ext = path.extname(file.originalname);
         const baseName = path.basename(file.originalname, ext);
         const fileName = `${baseName}-${Date.now()}${ext}`;
-        const filePath = path.join(__dirname, "../../../public/photos/imported", fileName);
+        const folderPath = path.join(__dirname, "../../../public/photos", networkSlug);
+        const filePath = path.join(folderPath, fileName);
 
         // Créer le répertoire s'il n'existe pas
-        const dir = path.dirname(filePath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
         }
 
         // Compresser et sauvegarder l'image
@@ -77,13 +79,13 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
         console.log(`✓ Image sauvegardée: ${fileName}`);
 
         // Créer le record en DB
-        const src = `/photos/imported/${fileName}`;
+        const src = `/photos/${networkSlug}/${fileName}`;
         const photo = photoRepository.create({
           title: title || baseName,
           displayTitle: title || baseName,
           img: src,
           src: src,
-          slug: "imported",
+          slug: networkSlug,
           desc: description || "",
           displayDesc: description || "",
         });
@@ -91,7 +93,7 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
 
         const saved = await photoRepository.save(photo);
         savedPhotos.push(saved);
-        console.log(`✓ Photo ajoutée en BD: ${title}`);
+        console.log(`✓ Photo ajoutée en BD: ${title} → ${networkSlug}`);
       } catch (err) {
         console.error(`❌ Erreur traitement fichier ${i}:`, err);
       }

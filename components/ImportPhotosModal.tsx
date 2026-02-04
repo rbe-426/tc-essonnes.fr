@@ -19,12 +19,14 @@ interface ImportPhotosModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImportComplete?: () => void;
+  networkSlug?: string;
 }
 
 export default function ImportPhotosModal({
   isOpen,
   onClose,
   onImportComplete,
+  networkSlug,
 }: ImportPhotosModalProps) {
   const [step, setStep] = useState<"upload" | "edit" | "success" | "error">("upload");
   const [photos, setPhotos] = useState<PhotoData[]>([]);
@@ -129,6 +131,11 @@ export default function ImportPhotosModal({
         formData.append(`titles[${idx}]`, photo.title);
         formData.append(`descriptions[${idx}]`, photo.desc);
       });
+      
+      // Ajouter le networkSlug si disponible
+      if (networkSlug) {
+        formData.append("networkSlug", networkSlug);
+      }
 
       const response = await fetch("/api/upload", {
         method: "POST",

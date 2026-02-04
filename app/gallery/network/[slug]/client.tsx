@@ -120,6 +120,7 @@ export default function NetworkPageClient({
         onImportComplete={() => {
           window.location.reload();
         }}
+        networkSlug={networkSlug}
       />
     </>
   );
