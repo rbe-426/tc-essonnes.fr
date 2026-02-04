@@ -67,14 +67,13 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
         const imageData = compressedBuffer.toString("base64");
         console.log(`✓ Image compressée et encodée (${Math.round(imageData.length / 1024)}KB en base64)`);
 
-        // Créer le record en DB avec l'image
-        const src = `/api/photos/${networkSlug}/image`; // URL virtuelle
+        // Créer le record en DB avec l'image - créer d'abord sans src
         const baseName = path.basename(file.originalname, path.extname(file.originalname));
         const photo = photoRepository.create({
           title: title || baseName,
           displayTitle: title || baseName,
-          img: src,
-          src: src,
+          img: "", // À remplir après l'ID
+          src: "", // À remplir après l'ID
           slug: networkSlug,
           desc: description || "",
           displayDesc: description || "",
@@ -83,6 +82,11 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
         photo.network = network;
 
         const saved = await photoRepository.save(photo);
+        
+        // Maintenant on peut créer le src avec l'ID
+        saved.src = `/api/photos/${networkSlug}/image/${saved.id}`;
+        saved.img = saved.src;
+        await photoRepository.save(saved);
         savedPhotos.push(saved);
         console.log(`✓ Photo ajoutée en BD (avec image): ${title} → ${networkSlug}`);
       } catch (err) {
@@ -93,12 +97,11 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
           try {
             console.log(`⚠️ Colonne imageData manquante, création sans image...`);
             const baseName = path.basename(file.originalname, path.extname(file.originalname));
-            const src = `/api/photos/${networkSlug}/image`; // URL virtuelle
             const photo = photoRepository.create({
               title: title || baseName,
               displayTitle: title || baseName,
-              img: src,
-              src: src,
+              img: "",
+              src: "",
               slug: networkSlug,
               desc: description || "",
               displayDesc: description || "",
@@ -106,6 +109,12 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
             });
             photo.network = network;
             const saved = await photoRepository.save(photo);
+            
+            // Ajouter l'ID au src après création
+            saved.src = `/api/photos/${networkSlug}/image/${saved.id}`;
+            saved.img = saved.src;
+            await photoRepository.save(saved);
+            
             savedPhotos.push(saved);
             console.log(`✓ Photo ajoutée sans image: ${title} → ${networkSlug}`);
           } catch (fallbackErr) {
