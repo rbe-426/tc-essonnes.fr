@@ -154,9 +154,11 @@ router.get("/:networkSlug/thumb/:photoId", async (req: any, res: any) => {
 router.get("/:networkSlug", async (req: any, res: any) => {
   try {
     const { networkSlug } = req.params;
+    console.log(`🔍 DEBUG: Requête pour networkSlug="${networkSlug}"`);
 
     const network = await networkRepository.findOne({ where: { slug: networkSlug } });
     if (!network) {
+      console.warn(`⚠️ Réseau non trouvé: ${networkSlug}`);
       return res.status(404).json({ success: false, message: "Réseau non trouvé" });
     }
 
@@ -166,6 +168,9 @@ router.get("/:networkSlug", async (req: any, res: any) => {
     });
 
     console.log(`📊 ${networkSlug}: ${photos.length} photos en DB`);
+    photos.forEach((p, i) => {
+      console.log(`   Photo ${i}: id=${p.id}, slug="${p.slug}", title="${p.title}"`);
+    });
 
     // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
     const mappedPhotos = photos.map((p: Photo) => {
@@ -173,15 +178,17 @@ router.get("/:networkSlug", async (req: any, res: any) => {
         console.warn(`⚠️ Photo ${p.id} (${p.slug}) n'a pas d'imageData`);
         return null;
       }
+      const srcUrl = `/api/photos/${p.slug}/image/${p.id}`;
+      console.log(`   ✓ Photo ${p.id}: src="${srcUrl}"`);
       return {
         ...p,
-        src: `/api/photos/${p.slug}/image/${p.id}`,
+        src: srcUrl,
         displayTitle: p.displayTitle || p.title,
         displayDesc: p.displayDesc || p.desc,
       };
     }).filter(p => p !== null);
 
-    console.log(`✓ ${mappedPhotos.length} photos valides`);
+    console.log(`✓ ${mappedPhotos.length} photos valides retournées`);
     return res.json({ success: true, photos: mappedPhotos, network });
   } catch (error) {
     console.error("Erreur GET photos:", error);
