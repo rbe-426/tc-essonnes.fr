@@ -54,7 +54,7 @@ export default function AnecdoteCard() {
         <img src="/icons/icon-info.png" alt="" />
       </span>
 
-      <div className="bubble-title">La TC Anecdote</div>
+      <div className="bubble-title">Le Saviez Vous ?</div>
       <p className="anec-text">{anecdote}</p>
     </article>
   );

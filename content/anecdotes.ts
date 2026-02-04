@@ -67,4 +67,5 @@ export const anecdotes = [
   "Les réseaux de transport racontent l’histoire d’un territoire autant que ses monuments.",
   "Un dépôt de bus est à la fois un lieu de maintenance et un lieu de mémoire du réseau.",
   "Les péages franciliens n’existent que sur l’A14, contrairement aux autoroutes régionales.",
+  "Sur mon temps libre, je vous créee des dossiers techniques sur certains modèles qui sont disponibles en photos sur ce site, consultez la rubrique 'Les TC Dossiers'",
 ] as const;
