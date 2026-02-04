@@ -1,6 +1,18 @@
 import Link from "next/link";
 import type { LatestItem } from "@/lib/getLatestPhotos";
 import { getLatestPhotos } from "@/lib/getLatestPhotos";
+import { getServerUrl } from "@/lib/serverUrl";
+
+// Normaliser l'URL de l'image
+function normalizeImageUrl(src: string): string {
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src;
+  }
+  if (src.startsWith("/api/")) {
+    return getServerUrl() + src;
+  }
+  return src;
+}
 
 // Fonction pour calculer le seed basé sur la semaine (dimanche 18h UTC)
 function getWeekSeed(): number {
@@ -65,7 +77,7 @@ export default async function WeeklyPhoto() {
           title="Voir cette photo dans la galerie"
         >
           <img
-            src={photo.src}
+            src={normalizeImageUrl(photo.src)}
             alt={photo.title || "Photo"}
             style={{ width: "100%", height: "auto", borderRadius: "8px" }}
           />

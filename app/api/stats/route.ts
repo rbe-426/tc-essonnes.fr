@@ -7,28 +7,25 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const photosDir = join(process.cwd(), "public/photos");
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
     
-    // Compter le nombre total de photos
+    // Compter le nombre total de photos depuis la DB
     let totalPhotos = 0;
-    const networkFolders = new Set<string>();
     
-    networks.forEach(net => {
-      const folder = net.folder || net.slug;
-      networkFolders.add(folder);
-    });
-
-    for (const folder of networkFolders) {
+    for (const net of networks) {
       try {
-        const folderPath = join(photosDir, folder);
-        const files = readdirSync(folderPath);
-        // Compter les fichiers image (exclure meta.json et photos.json)
-        const imageFiles = files.filter(f => 
-          /\.(jpg|jpeg|png|webp|gif)$/i.test(f)
-        );
-        totalPhotos += imageFiles.length;
+        const response = await fetch(`${backendUrl}/api/photos/${net.slug}`, {
+          cache: "no-store"
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data.photos)) {
+            totalPhotos += data.photos.length;
+          }
+        }
       } catch (error) {
-        // Dossier inexistant, passer
+        // Continuer si une requête échoue
       }
     }
 
