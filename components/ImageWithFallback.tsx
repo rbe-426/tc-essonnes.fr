@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getServerUrl } from "@/lib/serverUrl";
+import styles from "./ImageWithFallback.module.css";
 
 interface ImageWithFallbackProps {
   src: string;
@@ -56,20 +57,27 @@ export default function ImageWithFallback({
   };
 
   return (
-    <img
-      key={`${displayUrl}-${shouldRetry}`}
-      src={displayUrl}
-      alt={alt}
-      style={{
-        ...style,
-        backgroundColor: isLoading ? "#e8e8e8" : undefined,
-        transition: "background-color 0.2s",
-      }}
-      onError={handleError}
-      onLoad={() => {
-        setIsLoading(false);
-        setRetryCount(0); // Reset après succès
-      }}
-    />
+    <div style={{ position: "relative", display: "inline-block", width: "100%", ...style }}>
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.spinner} />
+        </div>
+      )}
+      <img
+        key={`${displayUrl}-${shouldRetry}`}
+        src={displayUrl}
+        alt={alt}
+        style={{
+          width: "100%",
+          height: "auto",
+          display: isLoading ? "none" : "block",
+        }}
+        onError={handleError}
+        onLoad={() => {
+          setIsLoading(false);
+          setRetryCount(0); // Reset après succès
+        }}
+      />
+    </div>
   );
 }

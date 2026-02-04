@@ -26,13 +26,12 @@ async function syncPhotosToProduction() {
 
   const photoRepo = AppDataSource.getRepository(Photo);
 
-  // Récupérer toutes les photos avec imageData
-  const photos = await photoRepo.find({
-    where: {
-      imageData: () => "imageData IS NOT NULL",
-    },
-    relations: ["network"],
-  });
+  // Récupérer toutes les photos avec imageData (queryBuilder pour WHERE NOT NULL)
+  const photos = await photoRepo
+    .createQueryBuilder("photo")
+    .where("photo.imageData IS NOT NULL")
+    .leftJoinAndSelect("photo.network", "network")
+    .getMany();
 
   console.log(`📊 ${photos.length} photos trouvées en local`);
 
