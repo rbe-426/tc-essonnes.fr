@@ -138,11 +138,10 @@ export default async function NetworkPage({ params }: { params: { slug: string }
     (net as any).folder ||
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
-  // Utiliser la BD en priorité, fallback sur les fichiers si indisponible
-  let photos = await readPhotosFromDatabase(net.slug);
+  // Architecture 100% database-driven - AUCUN fallback filesystem
+  const photos = await readPhotosFromDatabase(net.slug);
   if (photos.length === 0) {
-    console.warn(`⚠️ BD vide ou indisponible pour ${net.slug}, utilisation du fallback filesystem`);
-    photos = readPhotosFromFolder(folder);
+    console.log(`ℹ️ Aucune photo en BD pour ${net.slug} - importer via l'interface d'admin`);
   }
   const networkSlug = net.slug;
 

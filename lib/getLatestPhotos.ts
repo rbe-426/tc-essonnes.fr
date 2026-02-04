@@ -84,21 +84,15 @@ async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
 }
 
 export async function getLatestPhotos(limit = 20): Promise<LatestItem[]> {
-  // Source de vérité = PostgreSQL via API (OBLIGATOIRE pour production)
+  // Architecture 100% database-driven - source de vérité unique = PostgreSQL
   const fromAPI = await getFromAPI(limit);
   if (fromAPI && fromAPI.length > 0) {
     console.log(`✓ ${fromAPI.length} photos depuis API DB`);
     return fromAPI;
   }
   
-  // Fallback JSON: données obsolètes uniquement si API échoue
-  console.warn("⚠️ API INDISPONIBLE - Utilisation du fallback JSON (données obsolètes!)");
-  const fromFiles = getFromFiles(limit);
-  
-  if (fromFiles.length === 0) {
-    console.error("❌ AUCUNE PHOTO TROUVÉE - API indisponible ET fichiers JSON absents ou vides");
-    console.error("   Solution: Importer des photos via l'interface d'admin ou vérifier DATABASE_URL");
-  }
-  
-  return fromFiles;
+  // AUCUN fallback - si la DB est indisponible, retourner vide
+  console.error("❌ API DB indisponible - aucune photo disponible");
+  console.error("   Vérifier: DATABASE_URL sur Railway et que le backend est accessible");
+  return [];
 }
