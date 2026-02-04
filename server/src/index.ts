@@ -8,6 +8,7 @@ import networksRoutes from "./routes/networks";
 import photosRoutes from "./routes/photos";
 import localPhotosRoutes from "./routes/localPhotos";
 import adminRoutes from "./routes/admin";
+import uploadRoutes from "./routes/upload";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -53,6 +54,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/networks", networksRoutes);
 app.use("/api/photos", photosRoutes);
+app.use("/api/photos/upload", uploadRoutes);
 app.use("/api/local-photos", localPhotosRoutes);
 app.use("/api/admin", adminRoutes);
 
