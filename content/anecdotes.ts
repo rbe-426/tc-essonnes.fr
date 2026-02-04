@@ -27,5 +27,6 @@ export const anecdotes = [
   "L'Association ‘RétroBus Essonne’ est une association de collection d'autobus anciens basée à Corbeil Essonnes",
   "Ce site est conçu en deux version, la première était... originale !",
   "Cars Soeur étaient les premiers à utiliser le site propre actuel d'Evry-Courcouronnes.",
-  "TC - Essonnes signifie Transports en Commun d'Essonne, et était principalement le nom de mon compte instagram. Puis j'ai mis mon prénom civil en 2023."
+  "TC - Essonnes signifie Transports en Commun d'Essonne, et était principalement le nom de mon compte instagram. Puis j'ai mis mon prénom civil en 2023.",
+  "Le Citaro 1 de l'Association RétroBus Essonne est le plus vieux Citaro préservé en France"
 ] as const;
