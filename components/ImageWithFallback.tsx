@@ -75,8 +75,9 @@ export default function ImageWithFallback({
       ref={containerRef}
       style={{
         position: "relative",
-        display: "inline-block",
+        display: "block",
         width: "100%",
+        aspectRatio: "auto",
         backgroundColor: "#f0f0f0",
         ...style,
       }}
@@ -110,19 +111,17 @@ export default function ImageWithFallback({
         />
       )}
 
-      {/* Image full resolution (se charge en arrière-plan) */}
+      {/* Image full resolution - visible, crée l'espace */}
       {isVisible && primaryUrl && (
         <img
           key={`full-${primaryUrl}`}
           src={useFallback ? fallbackUrl : primaryUrl}
           alt={alt}
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
             width: "100%",
-            height: "100%",
-            opacity: fullLoaded ? 1 : 0,
+            height: "auto",
+            display: "block",
+            opacity: fullLoaded ? 1 : 0.1,
             transition: "opacity 0.4s ease-in-out",
             zIndex: 2,
           }}
@@ -134,17 +133,19 @@ export default function ImageWithFallback({
         />
       )}
 
-      {/* Placeholder qui maintient les proportions */}
-      <img
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3C/svg%3E"
-        alt=""
-        style={{
-          width: "100%",
-          height: "auto",
-          display: "block",
-          visibility: fullLoaded ? "hidden" : "visible",
-        }}
-      />
+      {/* SVG placeholder qui maintient les proportions (1:1 par défaut) */}
+      {!fullLoaded && isVisible && !primaryUrl && (
+        <img
+          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23f0f0f0' width='1' height='1'/%3E%3C/svg%3E"
+          alt=""
+          style={{
+            width: "100%",
+            height: "auto",
+            display: "block",
+          }}
+          aria-hidden="true"
+        />
+      )}
     </div>
   );
 }
