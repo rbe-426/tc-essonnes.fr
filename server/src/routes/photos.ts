@@ -35,7 +35,7 @@ router.get("/latest", async (req: any, res: any) => {
     const mapped = photos.map(p => ({
       href: `/gallery/network/${p.slug}`,
       slug: p.slug,
-      src: p.src,
+      src: `/api/photos/${p.slug}/image/${p.id}`,  // URL pour servir l'image depuis le backend
       title: p.displayTitle || p.title || null,
       description: p.displayDesc || p.desc || null,
       brand: p.brand || null,
@@ -111,6 +111,7 @@ router.get("/:networkSlug", async (req: any, res: any) => {
     // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
     const mappedPhotos = photos.map((p: Photo) => ({
       ...p,
+      src: `/api/photos/${p.slug}/image/${p.id}`,  // URL pour servir l'image depuis le backend
       displayTitle: p.displayTitle || p.title,
       displayDesc: p.displayDesc || p.desc,
     }));
