@@ -84,8 +84,20 @@ const startServer = async () => {
       try {
         await AppDataSource.initialize();
         console.log("✅ Base de données connectée");
+        
+        // Exécuter les migrations
+        try {
+          await AppDataSource.runMigrations();
+          console.log("✅ Migrations exécutées");
+        } catch (migrationError) {
+          console.warn("⚠️ Erreur lors des migrations:", migrationError);
+        }
       } catch (dbError) {
-        console.warn("⚠️ Impossible de se connecter à la BD, serveur démarrera sans DB");
+        console.warn("⚠️ Impossible de se connecter à la BD");
+        if (dbError instanceof Error) {
+          console.warn(`   Détail: ${dbError.message}`);
+        }
+        console.warn("   Serveur démarrera sans DB");
       }
     } else {
       console.log("⚠️ DATABASE_URL non défini, serveur démarrera sans BD");

@@ -53,11 +53,11 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
 
     // Traiter chaque fichier
     for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const title = Array.isArray(titles) ? titles[i] : titles;
+      const description = Array.isArray(descriptions) ? descriptions[i] : descriptions;
+      
       try {
-        const file = files[i];
-        const title = Array.isArray(titles) ? titles[i] : titles;
-        const description = Array.isArray(descriptions) ? descriptions[i] : descriptions;
-
         // Compresser l'image et convertir en base64
         const compressedBuffer = await sharp(file.buffer)
           .resize(2000, 2000, { fit: "inside", withoutEnlargement: true })
@@ -87,6 +87,31 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
         console.log(`✓ Photo ajoutée en BD (avec image): ${title} → ${networkSlug}`);
       } catch (err) {
         console.error(`❌ Erreur traitement fichier ${i}:`, err);
+        
+        // Si l'erreur est "column imageData does not exist", créer la photo sans imageData
+        if (err instanceof Error && err.message.includes("column \"imageData\" does not exist")) {
+          try {
+            console.log(`⚠️ Colonne imageData manquante, création sans image...`);
+            const baseName = path.basename(file.originalname, path.extname(file.originalname));
+            const src = `/api/photos/${networkSlug}/image`; // URL virtuelle
+            const photo = photoRepository.create({
+              title: title || baseName,
+              displayTitle: title || baseName,
+              img: src,
+              src: src,
+              slug: networkSlug,
+              desc: description || "",
+              displayDesc: description || "",
+              // Pas de imageData ici
+            });
+            photo.network = network;
+            const saved = await photoRepository.save(photo);
+            savedPhotos.push(saved);
+            console.log(`✓ Photo ajoutée sans image: ${title} → ${networkSlug}`);
+          } catch (fallbackErr) {
+            console.error(`❌ Erreur création fallback:`, fallbackErr);
+          }
+        }
       }
     }
 
