@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { AppDataSource } from "./server/src/database";
-import { Photo } from "./server/src/entities/Photo";
-import { Network } from "./server/src/entities/Network";
+import { AppDataSource } from "./src/database";
+import { Photo } from "./src/entities/Photo";
+import { Network } from "./src/entities/Network";
 import { createConnection, Connection } from "typeorm";
 
 /**

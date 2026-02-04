@@ -27,11 +27,15 @@ export function EditProvider({ children }: { children: ReactNode }) {
     
     setIsLocalhost(isLocal);
     
+    // Vérifier le cookie admin (déverrouillage temporaire)
+    const cookies = typeof document !== "undefined" ? document.cookie : "";
+    const hasAdminCookie = cookies.includes("admin-edit-mode=true");
+    
     // Si en localhost, active automatiquement le mode édition et l'authentification
-    if (isLocal) {
+    if (isLocal || hasAdminCookie) {
       setIsAuthenticated(true);
       setIsEditMode(true);
-      console.log("✅ Mode édition activé (localhost détecté)");
+      console.log("✅ Mode édition activé (localhost ou admin-unlock)");
     }
   }, []);
 
