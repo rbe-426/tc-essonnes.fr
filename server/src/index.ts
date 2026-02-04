@@ -85,6 +85,18 @@ const startServer = async () => {
         await AppDataSource.initialize();
         console.log("✅ Base de données connectée");
         
+        // Debug: compter les photos en DB
+        try {
+          const photoRepo = AppDataSource.getRepository("Photo");
+          const totalPhotos = await photoRepo.count();
+          const photosWithImageData = await photoRepo.createQueryBuilder("photo")
+            .where("photo.imageData IS NOT NULL")
+            .getCount();
+          console.log(`📊 Infos DB: ${totalPhotos} photos total, ${photosWithImageData} avec imageData`);
+        } catch (e) {
+          console.warn("⚠️ Erreur lors du comptage des photos");
+        }
+        
         // Exécuter les migrations
         try {
           await AppDataSource.runMigrations();

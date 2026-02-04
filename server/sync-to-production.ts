@@ -48,6 +48,16 @@ async function syncPhotosToProduction() {
       .getMany();
 
     console.log(`📊 ${localPhotos.length} photos trouvées en local\n`);
+    
+    // Debug: afficher les infos des photos
+    for (const photo of localPhotos) {
+      const imageDataSize = photo.imageData ? (photo.imageData.length / 1024 / 1024).toFixed(2) : "null";
+      console.log(`🔍 ${photo.displayTitle || photo.title}:`);
+      console.log(`   - id: ${photo.id}`);
+      console.log(`   - slug: ${photo.slug}`);
+      console.log(`   - imageData: ${imageDataSize}MB`);
+      console.log(`   - src: ${photo.src}\n`);
+    }
 
     if (localPhotos.length === 0) {
       console.log("ℹ️ Aucune photo à synchroniser");
