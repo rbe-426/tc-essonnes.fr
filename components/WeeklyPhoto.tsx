@@ -1,18 +1,7 @@
 import Link from "next/link";
 import type { LatestItem } from "@/lib/getLatestPhotos";
 import { getLatestPhotos } from "@/lib/getLatestPhotos";
-import { getServerUrl } from "@/lib/serverUrl";
-
-// Normaliser l'URL de l'image
-function normalizeImageUrl(src: string): string {
-  if (src.startsWith("http://") || src.startsWith("https://")) {
-    return src;
-  }
-  if (src.startsWith("/api/")) {
-    return getServerUrl() + src;
-  }
-  return src;
-}
+import ImageWithFallback from "./ImageWithFallback";
 
 // Fonction pour calculer le seed basé sur la semaine (dimanche 18h UTC)
 function getWeekSeed(): number {
@@ -76,17 +65,12 @@ export default async function WeeklyPhoto() {
           style={{ cursor: "pointer", display: "block" }}
           title="Voir cette photo dans la galerie"
         >
-          <img
-            src={photo.src ? normalizeImageUrl(photo.src) : `/photos/${photo.slug}/${photo.title || "photo"}.webp`}
+          <ImageWithFallback
+            src={photo.src}
             alt={photo.title || "Photo"}
+            slug={photo.slug}
+            title={photo.title}
             style={{ width: "100%", height: "auto", borderRadius: "8px" }}
-            onError={(e) => {
-              // Si l'API image échoue, essayer le filesystem
-              if (!e.currentTarget.src.includes("/photos/")) {
-                console.warn("Image API failed, trying filesystem:", photo);
-                e.currentTarget.src = `/photos/${photo.slug}/${photo.title || "photo"}.webp`;
-              }
-            }}
           />
         </Link>
 
