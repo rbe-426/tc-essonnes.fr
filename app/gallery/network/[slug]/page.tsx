@@ -28,6 +28,34 @@ function cleanSrc(folder: string, src: string) {
   return match ? match[1] : src;
 }
 
+// Récupérer les photos depuis la BD (via l'API du serveur)
+async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
+  try {
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+    const response = await fetch(`${backendUrl}/api/photos/${slug}`, { 
+      cache: "no-store" 
+    });
+    
+    if (!response.ok) {
+      console.log(`⚠️ Pas de BD pour ${slug}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    if (data.success && Array.isArray(data.photos)) {
+      return data.photos.map((p: any) => ({
+        src: p.src,
+        title: p.displayTitle || p.title,
+        description: p.displayDesc || p.desc,
+      }));
+    }
+    return [];
+  } catch (err) {
+    console.log(`ℹ️ BD indisponible pour ${slug}:`, err);
+    return [];
+  }
+}
+
 function readPhotosFromFolder(folder: string): PhotoItem[] {
   const dir = photosDir(folder);
   if (!fs.existsSync(dir)) return [];
@@ -79,7 +107,7 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   return { title: `${net.name} — Galerie`, description: `Photos du réseau ${net.name}.` };
 }
 
-export default function NetworkPage({ params }: { params: { slug: string } }) {
+export default async function NetworkPage({ params }: { params: { slug: string } }) {
   const p = norm(params.slug);
   const net =
     networks.find((n) => norm(n.slug) === p) ||
@@ -91,7 +119,11 @@ export default function NetworkPage({ params }: { params: { slug: string } }) {
     (net as any).folder ||
     ((net.href || "").split("/").filter(Boolean).pop() || net.slug);
 
-  const photos = readPhotosFromFolder(folder);
+  // Essayer la BD d'abord, puis fallback sur les fichiers
+  let photos = await readPhotosFromDatabase(net.slug);
+  if (photos.length === 0) {
+    photos = readPhotosFromFolder(folder);
+  }
   const networkSlug = net.slug;
 
   return (
