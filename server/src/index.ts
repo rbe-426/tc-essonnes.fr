@@ -10,6 +10,7 @@ import localPhotosRoutes from "./routes/localPhotos";
 import adminRoutes from "./routes/admin";
 import uploadRoutes from "./routes/upload";
 import maintenanceRoutes from "./routes/maintenance";
+import editableContentRoutes from "./routes/editableContent";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -59,6 +60,7 @@ app.use("/api/photos", photosRoutes);
 app.use("/api/local-photos", localPhotosRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
+app.use("/api/editable-content", editableContentRoutes);
 
 // Health check
 app.get("/api/health", (req: any, res: any) => {

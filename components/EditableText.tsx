@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getServerUrl } from '../lib/serverUrl';
 
 interface EditableTextProps {
   id: string;
@@ -15,26 +16,65 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Charger le texte du localStorage (valide pour localhost ET production)
-    const saved = localStorage.getItem(`editable-text-${id}`);
-    if (saved) {
-      setText(saved);
-    }
+    const loadText = async () => {
+      try {
+        const serverUrl = getServerUrl();
+        const response = await fetch(`${serverUrl}/api/editable-content/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.content) {
+            setText(data.content);
+          }
+        }
+      } catch (error) {
+        console.warn('Erreur lors du chargement du texte:', error);
+      }
 
-    // Vérifier si on est en localhost
-    const isLocal = typeof window !== 'undefined' && 
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    setIsLocalhost(isLocal);
-    setIsLoaded(true);
+      // Vérifier si on est en localhost
+      const isLocal = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      setIsLocalhost(isLocal);
+      setIsLoaded(true);
+    };
+
+    loadText();
   }, [id]);
 
-  const handleSave = () => {
-    localStorage.setItem(`editable-text-${id}`, text);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const serverUrl = getServerUrl();
+      const response = await fetch(`${serverUrl}/api/editable-content/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text })
+      });
+
+      if (response.ok) {
+        setIsEditing(false);
+      } else {
+        alert('Erreur lors de la sauvegarde');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      alert('Erreur serveur');
+    }
   };
 
   const handleCancel = () => {
-    setText(localStorage.getItem(`editable-text-${id}`) || defaultText);
+    // Recharger la valeur du serveur
+    const reloadText = async () => {
+      try {
+        const serverUrl = getServerUrl();
+        const response = await fetch(`${serverUrl}/api/editable-content/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setText(data.content || defaultText);
+        }
+      } catch (error) {
+        console.warn('Erreur lors du rechargement:', error);
+      }
+    };
+    reloadText();
     setIsEditing(false);
   };
 
@@ -64,6 +104,7 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
             borderRadius: '4px',
             resize: 'vertical'
           }}
+          autoFocus
         />
         <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
           <button 
