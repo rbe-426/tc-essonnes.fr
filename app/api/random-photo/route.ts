@@ -1,5 +1,7 @@
 import { getLatestPhotos } from "@/lib/getLatestPhotos";
 
+export const dynamic = "force-dynamic";
+
 // Fonction pour calculer le seed basé sur la semaine (dimanche 18h UTC)
 // Retourne toujours la même valeur pour la même semaine, peu importe le timezone
 function getWeekSeed(): number {
