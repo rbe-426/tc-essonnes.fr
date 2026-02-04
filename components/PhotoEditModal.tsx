@@ -39,42 +39,47 @@ export default function PhotoEditModal({
   const handleSave = async () => {
     if (editPhoto) {
       try {
-        // Extraire le nom de fichier du src
-        const filename = editPhoto.src?.split("/").pop() || "";
-        const folderFromSrc = editPhoto.src?.split("/").slice(-2, -1)[0] || "";
-        const finalFolder = folder || folderFromSrc;
-
-        if (filename && finalFolder) {
-          const serverUrl = getServerUrl();
-          // Appeler l'API pour sauvegarder
-          const response = await fetch(`${serverUrl}/api/local-photos/save`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              folder: finalFolder,
-              src: editPhoto.src,
-              title: editPhoto.title,
-              description: editPhoto.description,
-              brand: editPhoto.brand,
-              model: editPhoto.model,
-            }),
-          });
-
-          if (response.ok) {
-            console.log("✅ Photo sauvegardée avec succès");
-            // Recharger la page après 500ms pour appliquer les changements
-            setTimeout(() => {
-              window.location.reload();
-            }, 500);
-          } else {
-            console.error("Erreur lors de la sauvegarde");
-          }
+        const serverUrl = getServerUrl();
+        
+        // Extraire le networkSlug depuis le path URL
+        const networkSlug = window.location.pathname.split("/").pop();
+        
+        // Le photoId DOIT être présent (vient de la DB)
+        if (!editPhoto.id) {
+          console.error("❌ Photo n'a pas d'ID - impossible de la modifier");
+          alert("Erreur: Photo sans ID (non synchronisée en BD)");
+          return;
         }
+        
+        // Appeler le nouvel endpoint DB
+        const response = await fetch(`${serverUrl}/api/photos/${networkSlug}/${editPhoto.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            displayTitle: editPhoto.title,
+            displayDesc: editPhoto.description,
+            brand: editPhoto.brand,
+            model: editPhoto.model,
+          }),
+        });
 
-        onSave(editPhoto);
-        onClose();
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log("✅ Photo modifiée avec succès");
+          onSave(editPhoto);
+          onClose();
+          // Recharger pour voir les changements
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        } else {
+          console.error("Erreur serveur:", data);
+          alert(`Erreur: ${data.message || "Modification échouée"}`);
+        }
       } catch (error) {
         console.error("Erreur:", error);
+        alert("Erreur lors de la modification");
       }
     }
   };

@@ -84,13 +84,21 @@ async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
 }
 
 export async function getLatestPhotos(limit = 20): Promise<LatestItem[]> {
-  // Source de vérité = PostgreSQL via API (OBLIGATOIRE)
+  // Source de vérité = PostgreSQL via API (OBLIGATOIRE pour production)
   const fromAPI = await getFromAPI(limit);
   if (fromAPI && fromAPI.length > 0) {
+    console.log(`✓ ${fromAPI.length} photos depuis API DB`);
     return fromAPI;
   }
   
-  // Fallback JSON SEULEMENT si API échoue - données obsolètes
+  // Fallback JSON: données obsolètes uniquement si API échoue
   console.warn("⚠️ API INDISPONIBLE - Utilisation du fallback JSON (données obsolètes!)");
-  return getFromFiles(limit);
+  const fromFiles = getFromFiles(limit);
+  
+  if (fromFiles.length === 0) {
+    console.error("❌ AUCUNE PHOTO TROUVÉE - API indisponible ET fichiers JSON absents ou vides");
+    console.error("   Solution: Importer des photos via l'interface d'admin ou vérifier DATABASE_URL");
+  }
+  
+  return fromFiles;
 }
