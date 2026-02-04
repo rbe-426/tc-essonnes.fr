@@ -4,19 +4,24 @@ import { Network } from "./entities/Network";
 import { Photo } from "./entities/Photo";
 import { User } from "./entities/User";
 import { AuditLog } from "./entities/AuditLog";
+import { AddImageDataToPhotos1738699200000 } from "./migrations/1738699200000-AddImageDataToPhotos";
 
 // Support DATABASE_URL (format Railway) ou variables individuelles
 const getDatabaseConfig = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+  
   if (process.env.DATABASE_URL) {
     console.log("📡 Utilise DATABASE_URL (Railway)");
     return {
       type: "postgres" as const,
       url: process.env.DATABASE_URL,
       synchronize: false,
-      logging: process.env.NODE_ENV === "development",
+      logging: !isProduction,
       entities: [Network, Photo, User, AuditLog],
       subscribers: [],
-      migrations: ["src/migrations/**/*.ts"],
+      migrations: isProduction 
+        ? [AddImageDataToPhotos1738699200000]
+        : ["src/migrations/**/*.ts"],
     };
   }
 
@@ -31,7 +36,9 @@ const getDatabaseConfig = () => {
     logging: process.env.NODE_ENV === "development",
     entities: [Network, Photo, User, AuditLog],
     subscribers: [],
-    migrations: ["src/migrations/**/*.ts"],
+    migrations: isProduction
+      ? [AddImageDataToPhotos1738699200000]
+      : ["src/migrations/**/*.ts"],
   };
 };
 
