@@ -77,9 +77,16 @@ export default async function WeeklyPhoto() {
           title="Voir cette photo dans la galerie"
         >
           <img
-            src={normalizeImageUrl(photo.src)}
+            src={photo.src ? normalizeImageUrl(photo.src) : `/photos/${photo.slug}/${photo.title || "photo"}.webp`}
             alt={photo.title || "Photo"}
             style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+            onError={(e) => {
+              // Si l'API image échoue, essayer le filesystem
+              if (!e.currentTarget.src.includes("/photos/")) {
+                console.warn("Image API failed, trying filesystem:", photo);
+                e.currentTarget.src = `/photos/${photo.slug}/${photo.title || "photo"}.webp`;
+              }
+            }}
           />
         </Link>
 

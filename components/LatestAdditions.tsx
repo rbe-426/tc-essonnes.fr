@@ -25,7 +25,19 @@ export default function LatestAdditions({ items, initial = 5 }:{
       <div className="latest-grid">
         {shown.map((it, i) => (
           <Link key={i} href={it.href} className="latest-item" title={it.title ?? ""}>
-            <div className="latest-thumb"><img src={normalizeImageUrl(it.src)} alt={it.title ?? ""} /></div>
+            <div className="latest-thumb">
+              <img 
+                src={normalizeImageUrl(it.src)} 
+                alt={it.title ?? ""} 
+                onError={(e) => {
+                  // Fallback to filesystem if API fails
+                  if (!e.currentTarget.src.includes("/photos/")) {
+                    const slug = it.href.split("/").pop();
+                    e.currentTarget.src = `/photos/${slug}/${it.title || "photo"}.webp`;
+                  }
+                }}
+              />
+            </div>
             <div className="latest-meta"><div className="latest-title">{it.title ?? "\u00A0"}</div></div>
           </Link>
         ))}
