@@ -13,6 +13,6 @@ export function getServerUrl(): string {
     }
   }
 
-  // Default production
-  return "https://innovative-serenity-rbe-serveurs.up.railway.app:8081";
+  // Default production - ajuster l'URL à votre domaine Railway réel
+  return "https://innovative-serenity-rbe-serveurs.up.railway.app";
 }
