@@ -5,6 +5,7 @@ import WeeklyPhoto from "../components/WeeklyPhoto";
 import FeaturedNetworks from "../components/FeaturedNetworks";
 import { DiscordWidget } from "../components/PhotoOfMonth";
 import StatsSection from "../components/StatsSection";
+import EditableText from "../components/EditableText";
 
 import { getLatestPhotos } from "../lib/getLatestPhotos";
 import LatestAdditionsWrapper from "../components/LatestAdditionsWrapper";
@@ -21,16 +22,6 @@ export default async function HomePage() {
       <div className="home-grid">
         {/* COLONNE GAUCHE */}
         <div className="home-left">
-          {/* HERO SECTION */}
-          <section className="bubble hero-section">
-            <h2>Découvrez ma collection</h2>
-            <p>
-              Une photothèque complète dédiée aux transports en Île-de-France. 
-              Explorez des centaines de clichés des réseaux les plus emblématiques de la région.
-            </p>
-            <a href="/gallery" className="cta-button">Explorer la galerie</a>
-          </section>
-
           {/* STATS */}
           <StatsSection />
 
@@ -41,6 +32,16 @@ export default async function HomePage() {
               <h3>Derniers Arrivages</h3>
             </header>
             <LatestAdditionsWrapper initialItems={latest} initial={5} />
+          </section>
+
+          {/* ACTUALITÉS SECTION */}
+          <section className="bubble hero-section">
+            <h2>Les dernières Actualités de TC</h2>
+            <EditableText 
+              id="hero-text"
+              defaultText="Une photothèque complète dédiée aux transports en Île-de-France. Explorez des centaines de clichés des réseaux les plus emblématiques de la région."
+            />
+            <a href="/gallery" className="cta-button">Explorer la galerie</a>
           </section>
         </div>
 
