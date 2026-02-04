@@ -66,21 +66,39 @@ function getFromFiles(limit = 20): LatestItem[] {
 
 // Fetch depuis l'API (source de vérité PostgreSQL)
 async function getFromAPI(limit: number): Promise<LatestItem[] | null> {
-  try {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
-    const res = await fetch(`${backendUrl}/api/photos/latest?limit=${limit}`, {
-      cache: "no-store"
-    });
-    if (!res.ok) {
-      console.warn(`⚠ API ${res.status}, fallback JSON`);
-      return null;
+  const maxRetries = 3;
+  const retryDelay = 500; // ms
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      
+      const res = await fetch(`${backendUrl}/api/photos/latest?limit=${limit}`, {
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        console.warn(`⚠ API ${res.status} (attempt ${attempt}/${maxRetries})`);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
+          continue;
+        }
+        return null;
+      }
+      const data = await res.json();
+      return data.items || null;
+    } catch (error) {
+      console.warn(`⚠ API indisponible (attempt ${attempt}/${maxRetries}): ${error}`);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
+      }
     }
-    const data = await res.json();
-    return data.items || null;
-  } catch (error) {
-    console.warn(`⚠ API indisponible: ${error}`);
-    return null;
   }
+  return null;
 }
 
 export async function getLatestPhotos(limit = 20): Promise<LatestItem[]> {
