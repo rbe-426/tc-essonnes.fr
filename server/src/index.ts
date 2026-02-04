@@ -24,21 +24,24 @@ const corsOptions = {
     // Toujours autoriser localhost en dev
     if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
       callback(null, true);
+      return;
+    }
+    
+    // Autoriser les domaines tc-essonnes
+    const allowedOrigins = [
+      "https://www.tc-essonnes.fr",
+      "https://tc-essonnes.fr"
+    ];
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else if (process.env.NODE_ENV !== "production") {
       // En développement (non-production), autoriser tous les origins
       callback(null, true);
     } else {
-      // En production stricte, restreindre
-      const allowedOrigins = [
-        "https://www.tc-essonnes.fr",
-        "https://tc-essonnes.fr"
-      ];
-      
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
+      // En production stricte, rejeter
+      console.warn(`❌ CORS blocked: ${origin}`);
+      callback(new Error("CORS not allowed"));
     }
   },
   credentials: true,
