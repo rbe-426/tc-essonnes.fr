@@ -130,7 +130,7 @@ export default function ImportPhotosModal({
         formData.append(`descriptions[${idx}]`, photo.desc);
       });
 
-      const response = await fetch("/api/photos/upload", {
+      const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });

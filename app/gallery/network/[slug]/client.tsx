@@ -20,6 +20,23 @@ export default function NetworkPageClient({
 }: NetworkPageClientProps) {
   const { isEditMode, setIsEditMode } = useEditContext();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
+
+  const handleCleanup = async () => {
+    setIsCleaning(true);
+    try {
+      const response = await fetch("http://localhost:3001/api/maintenance/cleanup", {
+        method: "POST",
+      });
+      const data = await response.json();
+      alert(data.message || "Nettoyage effectué");
+      window.location.reload();
+    } catch (error) {
+      alert("Erreur lors du nettoyage");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
 
   return (
     <>
@@ -55,30 +72,33 @@ export default function NetworkPageClient({
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#2196F3";
               }}
             >
-              ⬆️ Importer JSON
+              ⬆️ Importer photos
             </button>
             <button
-              onClick={() => setIsEditMode(!isEditMode)}
+              onClick={handleCleanup}
+              disabled={isCleaning}
               style={{
                 padding: "8px 16px",
-                backgroundColor: "#4CAF50",
+                backgroundColor: "#ff6b6b",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
                 fontWeight: "600",
                 fontSize: "0.9rem",
                 whiteSpace: "nowrap",
-                cursor: "pointer",
+                cursor: isCleaning ? "not-allowed" : "pointer",
                 transition: "all 0.2s ease",
+                opacity: isCleaning ? 0.6 : 1,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#45a049";
+                if (!isCleaning) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#ff5252";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#4CAF50";
+                if (!isCleaning) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#ff6b6b";
               }}
+              title="Nettoyer les photos supprimées de la BD"
             >
-              ✏️ EDIT MODE
+              {isCleaning ? "Nettoyage..." : "🗑️ Nettoyer BD"}
             </button>
           </div>
         )}
