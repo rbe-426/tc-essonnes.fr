@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getServerUrl } from "@/lib/serverUrl";
 import styles from "./ImageWithFallback.module.css";
 
@@ -29,53 +29,120 @@ export default function ImageWithFallback({
   title,
   style,
 }: ImageWithFallbackProps) {
+  const [thumbLoaded, setThumbLoaded] = useState(false);
+  const [fullLoaded, setFullLoaded] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-  const [shouldRetry, setShouldRetry] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const primaryUrl = src ? normalizeImageUrl(src) : null;
+  const thumbUrl = primaryUrl?.replace("/image/", "/thumb/");
   const fallbackUrl = `/photos/${slug}/${title || "photo"}.webp`;
-  const displayUrl = useFallback || !primaryUrl ? fallbackUrl : primaryUrl;
 
-  // Retry avec délai si l'API n'est pas prête
-  const handleError = () => {
-    if (!useFallback && retryCount < 2) {
-      console.warn(`⚠️ Image load failed (retry ${retryCount + 1}/2):`, { slug, title });
-      const nextRetry = retryCount + 1;
-      setRetryCount(nextRetry);
-      
-      // Retry après 1.5 secondes (laisser le backend démarrer)
-      setTimeout(() => {
-        setShouldRetry(prev => !prev);
-      }, 1500);
-    } else {
-      console.warn(`⚠️ Image API unavailable, using fallback:`, { slug, title });
-      setUseFallback(true);
-    }
-    setIsLoading(false);
+  // Lazy loading avec Intersection Observer
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "50px" }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleThumbError = () => {
+    // Si le thumbnail échoue, passer directement à l'image full
+    setThumbLoaded(true);
+  };
+
+  const handleFullError = () => {
+    console.warn(`⚠️ Image full échouée:`, { slug, title });
+    setUseFallback(true);
+    setFullLoaded(true);
   };
 
   return (
-    <div style={{ position: "relative", display: "inline-block", width: "100%", ...style }}>
-      {isLoading && (
+    <div
+      ref={containerRef}
+      style={{
+        position: "relative",
+        display: "inline-block",
+        width: "100%",
+        backgroundColor: "#f0f0f0",
+        ...style,
+      }}
+      className={styles.container}
+    >
+      {/* Spinner pendant le chargement initial */}
+      {!thumbLoaded && !fullLoaded && isVisible && (
         <div className={styles.loadingOverlay}>
           <div className={styles.spinner} />
         </div>
       )}
+
+      {/* Thumbnail rapide (LQIP - Low Quality Image Placeholder) */}
+      {isVisible && thumbUrl && !fullLoaded && (
+        <img
+          key={`thumb-${thumbUrl}`}
+          src={thumbUrl}
+          alt={alt}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            filter: "blur(15px)",
+            opacity: thumbLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease-in-out",
+          }}
+          onLoad={() => setThumbLoaded(true)}
+          onError={handleThumbError}
+        />
+      )}
+
+      {/* Image full resolution (se charge en arrière-plan) */}
+      {isVisible && primaryUrl && (
+        <img
+          key={`full-${primaryUrl}`}
+          src={useFallback ? fallbackUrl : primaryUrl}
+          alt={alt}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            opacity: fullLoaded ? 1 : 0,
+            transition: "opacity 0.4s ease-in-out",
+            zIndex: 2,
+          }}
+          onLoad={() => {
+            setFullLoaded(true);
+            setThumbLoaded(true);
+          }}
+          onError={handleFullError}
+        />
+      )}
+
+      {/* Placeholder qui maintient les proportions */}
       <img
-        key={`${displayUrl}-${shouldRetry}`}
-        src={displayUrl}
-        alt={alt}
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3C/svg%3E"
+        alt=""
         style={{
           width: "100%",
           height: "auto",
-          display: isLoading ? "none" : "block",
-        }}
-        onError={handleError}
-        onLoad={() => {
-          setIsLoading(false);
-          setRetryCount(0); // Reset après succès
+          display: "block",
+          visibility: fullLoaded ? "hidden" : "visible",
         }}
       />
     </div>

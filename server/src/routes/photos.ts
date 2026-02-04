@@ -112,6 +112,44 @@ router.get("/:networkSlug/image/:photoId", async (req: any, res: any) => {
   }
 });
 
+// GET thumbnail rapide (version très compressée pour LQIP)
+router.get("/:networkSlug/thumb/:photoId", async (req: any, res: any) => {
+  try {
+    const { networkSlug, photoId } = req.params;
+
+    const photo = await photoRepository.findOne({
+      where: { id: photoId, slug: networkSlug },
+    });
+
+    if (!photo || !photo.imageData) {
+      return res.status(404).json({ success: false, message: "Thumbnail non trouvé" });
+    }
+
+    // Créer un thumbnail ultra-compressé si pas en cache
+    try {
+      const sharp = require("sharp");
+      const imageBuffer = Buffer.from(photo.imageData, "base64");
+      
+      // Réduire drastiquement: 150x150, quality 40 pour un tout petit fichier
+      const thumbBuffer = await sharp(imageBuffer)
+        .resize(150, 150, { fit: "cover" })
+        .webp({ quality: 40, effort: 4 })
+        .toBuffer();
+      
+      res.setHeader("Content-Type", "image/webp");
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      res.setHeader("Content-Length", thumbBuffer.length);
+      return res.send(thumbBuffer);
+    } catch (err) {
+      console.error("Erreur création thumbnail:", err);
+      return res.status(500).json({ success: false, message: "Erreur thumbnail" });
+    }
+  } catch (error) {
+    console.error("Error fetching thumbnail:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+
 // GET toutes les photos d'un réseau
 router.get("/:networkSlug", async (req: any, res: any) => {
   try {
