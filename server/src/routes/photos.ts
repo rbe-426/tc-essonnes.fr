@@ -93,9 +93,14 @@ router.get("/:networkSlug/image/:photoId", async (req: any, res: any) => {
       const imageBuffer = Buffer.from(photo.imageData, "base64");
       console.log(`✓ Buffer créé: ${imageBuffer.length} bytes`);
       
+      // Headers d'optimisation pour chargement rapide
       res.setHeader("Content-Type", "image/webp");
       res.setHeader("Content-Length", imageBuffer.length);
-      res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache 1 an
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable"); // Cache 1 an
+      res.setHeader("Vary", "Accept-Encoding");
+      res.setHeader("ETag", `"${photo.id}"`); // Pour revalidation
+      
+      // Compression gzip activée automatiquement par middleware compression()
       return res.send(imageBuffer);
     } catch (decodeErr) {
       console.error(`❌ Erreur décodage base64:`, decodeErr);

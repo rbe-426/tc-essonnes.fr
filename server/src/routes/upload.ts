@@ -59,13 +59,14 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
       
       try {
         // Compresser l'image et convertir en base64
+        // Optimisé: 1200×1200, quality 55, effort 4 pour meilleure compression
         const compressedBuffer = await sharp(file.buffer)
-          .resize(2000, 2000, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 75 })
+          .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 55, effort: 4 })
           .toBuffer();
         
         const imageData = compressedBuffer.toString("base64");
-        console.log(`✓ Image compressée et encodée (${Math.round(imageData.length / 1024)}KB en base64)`);
+        console.log(`✓ Image compressée et encodée (${Math.round(imageData.length / 1024)}KB en base64 - optimisée pour chargement rapide)`);
 
         // Créer le record en DB avec l'image - créer d'abord sans src
         const baseName = path.basename(file.originalname, path.extname(file.originalname));
