@@ -9,12 +9,17 @@ type Item = { src: string; title?: string; description?: string; brand?: string;
 
 // Normaliser l'URL de l'image
 function normalizeImageUrl(src: string): string {
+  console.log("🖼️ [Lightbox] normalizeImageUrl reçu:", src);
   if (src.startsWith("http://") || src.startsWith("https://")) {
+    console.log("✅ [Lightbox] URL absolue trouvée:", src);
     return src;
   }
   if (src.startsWith("/api/")) {
-    return getServerUrl() + src;
+    const fullUrl = getServerUrl() + src;
+    console.log("🔗 [Lightbox] URL API construite:", fullUrl);
+    return fullUrl;
   }
+  console.log("📁 [Lightbox] Chemin statique:", src);
   return src;
 }
 

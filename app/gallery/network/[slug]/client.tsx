@@ -12,12 +12,16 @@ interface NetworkPageClientProps {
   photos: PhotoItem[];
   networkSlug: string;
 }
-
 export default function NetworkPageClient({
   networkName,
   photos,
   networkSlug,
 }: NetworkPageClientProps) {
+  console.log(`🎨 [NetworkPageClient] Rendu galerie ${networkName}, networkSlug="${networkSlug}", photos=${photos.length}`);
+  photos.forEach((p, i) => {
+    console.log(`   Photo ${i}: id=${p.id}, src=${p.src}, title=${p.title}`);
+  });
+  
   const { isEditMode, setIsEditMode } = useEditContext();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
@@ -25,13 +29,16 @@ export default function NetworkPageClient({
   const handleCleanup = async () => {
     setIsCleaning(true);
     try {
+      console.log("🧹 [handleCleanup] Nettoyage en cours...");
       const response = await fetch("http://localhost:3001/api/maintenance/cleanup", {
         method: "POST",
       });
       const data = await response.json();
+      console.log("✅ [handleCleanup] Succès:", data);
       alert(data.message || "Nettoyage effectué");
       window.location.reload();
     } catch (error) {
+      console.error("❌ [handleCleanup] Erreur:", error);
       alert("Erreur lors du nettoyage");
     } finally {
       setIsCleaning(false);

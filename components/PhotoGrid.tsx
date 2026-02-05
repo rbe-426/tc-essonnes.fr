@@ -23,16 +23,26 @@ function extractNumberFromTitle(title: string): number {
 
 // Normaliser l'URL de l'image - ajouter le serverUrl si relatif
 function normalizeImageUrl(src: string): string {
+  console.log("🖼️ [normalizeImageUrl] src reçu:", src);
   if (src.startsWith("http://") || src.startsWith("https://")) {
+    console.log("✅ [normalizeImageUrl] Déjà absolu:", src);
     return src; // Déjà absolu
   }
   if (src.startsWith("/api/")) {
-    return getServerUrl() + src; // Ajouter le serverUrl
+    const fullUrl = getServerUrl() + src;
+    console.log("🔗 [normalizeImageUrl] Construit URL complète:", fullUrl);
+    return fullUrl; // Ajouter le serverUrl
   }
+  console.log("📁 [normalizeImageUrl] Chemin fichier statique:", src);
   return src; // Supposément un chemin fichier statique
 }
 
 export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
+  console.log("🖼️ [PhotoGrid] Initialisation avec", initialItems.length, "items");
+  initialItems.forEach((item, i) => {
+    console.log(`   Item ${i}: src=${item.src}, title=${item.title}`);
+  });
+  
   const { isEditMode } = useEditContext();
   const [items, setItems] = useState<Item[]>(initialItems);
   const [editingPhoto, setEditingPhoto] = useState<Item | null>(null);

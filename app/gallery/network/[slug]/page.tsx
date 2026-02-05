@@ -46,27 +46,40 @@ function cleanSrc(folder: string, src: string) {
 async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
   try {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
-    const response = await fetch(`${backendUrl}/api/photos/${slug}`, { 
+    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", BACKEND_URL="${backendUrl}"`);
+    const apiUrl = `${backendUrl}/api/photos/${slug}`;
+    console.log(`🔗 [readPhotosFromDatabase] Fetching: ${apiUrl}`);
+    
+    const response = await fetch(apiUrl, { 
       cache: "no-store" 
     });
     
+    console.log(`📊 [readPhotosFromDatabase] Response status: ${response.status}`);
+    
     if (!response.ok) {
-      console.log(`⚠️ Pas de BD pour ${slug}`);
+      console.warn(`❌ [readPhotosFromDatabase] Pas de BD pour ${slug} (status ${response.status})`);
       return [];
     }
     
     const data = await response.json();
+    console.log(`✅ [readPhotosFromDatabase] Data reçue:`, data);
+    
     if (data.success && Array.isArray(data.photos)) {
-      return data.photos.map((p: any) => ({
-        src: p.src,
-        title: p.displayTitle || p.title,
-        description: p.displayDesc || p.desc,
-        id: p.id,
-      }));
+      console.log(`📸 [readPhotosFromDatabase] ${data.photos.length} photos trouvées`);
+      return data.photos.map((p: any) => {
+        console.log(`   - Photo: id=${p.id}, src=${p.src}, title=${p.displayTitle || p.title}`);
+        return {
+          src: p.src,
+          title: p.displayTitle || p.title,
+          description: p.displayDesc || p.desc,
+          id: p.id,
+        };
+      });
     }
+    console.warn(`⚠️ [readPhotosFromDatabase] Format inattendu:`, data);
     return [];
   } catch (err) {
-    console.log(`ℹ️ BD indisponible pour ${slug}:`, err);
+    console.error(`❌ [readPhotosFromDatabase] Erreur pour ${slug}:`, err);
     return [];
   }
 }
