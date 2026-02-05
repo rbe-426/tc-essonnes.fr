@@ -19,7 +19,7 @@ export default function NetworkPageClient({
 }: NetworkPageClientProps) {
   console.log(`🎨 [NetworkPageClient] Rendu galerie ${networkName}, networkSlug="${networkSlug}", photos=${photos.length}`);
   photos.forEach((p, i) => {
-    console.log(`   Photo ${i}: id=${p.id}, src=${p.src}, title=${p.title}`);
+    console.log(`   Photo ${i}: src=${p.src}, title=${p.title}`);
   });
   
   const { isEditMode, setIsEditMode } = useEditContext();
