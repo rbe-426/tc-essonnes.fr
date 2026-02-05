@@ -54,38 +54,66 @@ async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
                  "localhost:3000";
     const baseUrl = `${protocol}://${host}`;
     const apiUrl = `${baseUrl}/api/photos-backend/${slug}`;
-    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", NODE_ENV=${process.env.NODE_ENV}, host=${host}, apiUrl="${apiUrl}"`);
+    
+    // 🔍 DEBUG COMPLET
+    const debugInfo = {
+      slug,
+      NODE_ENV: process.env.NODE_ENV,
+      RAILWAY_PUBLIC_DOMAIN: process.env.RAILWAY_PUBLIC_DOMAIN,
+      VERCEL_URL: process.env.VERCEL_URL,
+      RAILWAY_STATIC_URL: process.env.RAILWAY_STATIC_URL,
+      protocol,
+      host,
+      baseUrl,
+      apiUrl,
+      timestamp: new Date().toISOString(),
+    };
+    console.log(`🚀 [DB_FETCH] Démarrage:`, debugInfo);
     
     const response = await fetch(apiUrl, { 
       cache: "no-store" 
     });
     
-    console.log(`📊 [readPhotosFromDatabase] Response status: ${response.status}`);
+    console.log(`📊 [DB_FETCH] Response:`, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
     
     if (!response.ok) {
-      console.warn(`❌ [readPhotosFromDatabase] Pas de BD pour ${slug} (status ${response.status})`);
+      const errorText = await response.text().catch(() => "(impossible de lire)");
+      console.error(`❌ [DB_FETCH] Erreur HTTP ${response.status}:`, errorText);
       return [];
     }
     
     const data = await response.json();
-    console.log(`✅ [readPhotosFromDatabase] Data reçue:`, data);
+    console.log(`✅ [DB_FETCH] JSON parsé:`, data);
     
     if (data.success && Array.isArray(data.photos)) {
-      console.log(`📸 [readPhotosFromDatabase] ${data.photos.length} photos trouvées`);
-      return data.photos.map((p: any) => {
-        console.log(`   - Photo: src=${p.src}, title=${p.displayTitle || p.title}`);
-        return {
+      console.log(`📸 [DB_FETCH] ${data.photos.length} photos trouvées`);
+      const result = data.photos.map((p: any) => {
+        const item = {
           src: p.src,
           title: p.displayTitle || p.title,
           description: p.displayDesc || p.desc,
           id: p.id,
         };
+        console.log(`   ✓ Photo mappée:`, item);
+        return item;
       });
+      console.log(`✅ [DB_FETCH] Retourne ${result.length} photos`);
+      return result;
     }
-    console.warn(`⚠️ [readPhotosFromDatabase] Format inattendu:`, data);
+    console.error(`❌ [DB_FETCH] Format inattendu - success=${data.success}, photos is array=${Array.isArray(data.photos)}:`, data);
+
     return [];
   } catch (err) {
-    console.error(`❌ [readPhotosFromDatabase] Erreur pour ${slug}:`, err);
+    console.error(`❌ [DB_FETCH] Exception lancée:`, {
+      error: err,
+      message: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      slug,
+    });
     return [];
   }
 }

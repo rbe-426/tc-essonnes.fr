@@ -17,9 +17,10 @@ export default function NetworkPageClient({
   photos,
   networkSlug,
 }: NetworkPageClientProps) {
-  console.log(`🎨 [NetworkPageClient] Rendu galerie ${networkName}, networkSlug="${networkSlug}", photos=${photos.length}`);
+  console.log(`🎨 [CLIENT] Rendu galerie ${networkName}, networkSlug="${networkSlug}", photos=${photos.length}`);
+  console.log(`🎨 [CLIENT] Détail des photos reçues:`, photos);
   photos.forEach((p, i) => {
-    console.log(`   Photo ${i}: src=${p.src}, title=${p.title}`);
+    console.log(`   [${i}] src="${p.src}" | title="${p.title}" | id="${p.id}"`);
   });
   
   const { isEditMode, setIsEditMode } = useEditContext();
