@@ -13,6 +13,6 @@ export function getServerUrl(): string {
     }
   }
 
-  // Production - Railway expose sur le port 8080
-  return "https://innovative-serenity-rbe-serveurs.up.railway.app:8080";
+  // Production - Railway expose sur le port 8081
+  return "https://innovative-serenity-rbe-serveurs.up.railway.app:8081";
 }
