@@ -45,12 +45,16 @@ function cleanSrc(folder: string, src: string) {
 // Récupérer les photos depuis la BD (via l'API du serveur)
 async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
   try {
-    // Utiliser l'URL absolue pour les server components en dev/prod
+    // Construire l'URL absolue depuis les headers ou l'env
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const host = process.env.VERCEL_URL || process.env.RAILWAY_STATIC_URL || "localhost:3000";
+    // Railway: utiliser RAILWAY_PUBLIC_DOMAIN si disponible
+    const host = process.env.RAILWAY_PUBLIC_DOMAIN || 
+                 process.env.VERCEL_URL || 
+                 process.env.RAILWAY_STATIC_URL || 
+                 "localhost:3000";
     const baseUrl = `${protocol}://${host}`;
     const apiUrl = `${baseUrl}/api/photos-backend/${slug}`;
-    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", endpoint="${apiUrl}"`);
+    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", NODE_ENV=${process.env.NODE_ENV}, host=${host}, apiUrl="${apiUrl}"`);
     
     const response = await fetch(apiUrl, { 
       cache: "no-store" 
