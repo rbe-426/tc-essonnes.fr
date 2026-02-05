@@ -83,12 +83,14 @@ const startServer = async () => {
     console.log(`   PORT: ${PORT}`);
     console.log(`   DB_HOST: ${process.env.DB_HOST || "localhost"}`);
     console.log(`   DATABASE_URL present: ${!!process.env.DATABASE_URL}`);
+    console.log(`   NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || "NOT SET"}`);
     
     // Initialiser la base de données (optionnel si pas de DATABASE_URL)
     if (process.env.DATABASE_URL) {
       try {
+        console.log("🚀 Tentative de connexion à PostgreSQL...");
         await AppDataSource.initialize();
-        console.log("✅ Base de données connectée");
+        console.log("✅ Base de données connectée!");
         
         // Debug: compter les photos en DB
         try {
@@ -110,7 +112,7 @@ const startServer = async () => {
           console.warn("⚠️ Erreur lors des migrations:", migrationError);
         }
       } catch (dbError) {
-        console.warn("⚠️ Impossible de se connecter à la BD");
+        console.warn("❌ Impossible de se connecter à la BD:");
         if (dbError instanceof Error) {
           console.warn(`   Détail: ${dbError.message}`);
         }

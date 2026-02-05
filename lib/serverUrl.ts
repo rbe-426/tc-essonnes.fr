@@ -1,8 +1,9 @@
 // lib/serverUrl.ts
 export function getServerUrl(): string {
   // Utiliser l'URL depuis l'environnement si disponible
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  
   if (typeof window !== "undefined") {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     console.log("🔍 [serverUrl] NEXT_PUBLIC_API_URL =", apiUrl);
     if (apiUrl) {
       console.log("✅ [serverUrl] Utilisant NEXT_PUBLIC_API_URL:", apiUrl);
@@ -14,9 +15,20 @@ export function getServerUrl(): string {
       console.log("✅ [serverUrl] Mode localhost détecté, utilisant http://localhost:3001");
       return "http://localhost:3001";
     }
+    
+    // Production: utiliser même domaine (pas de port hardcodé)
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    // Utiliser le même domaine, le backend est sur le même service Railway
+    console.log("✅ [serverUrl] Mode production, utilisant même domaine:", `${protocol}//${host}`);
+    return `${protocol}//${host}`;
   }
 
-  // Production - Railway expose sur le port 8081
-  console.log("✅ [serverUrl] Mode production, utilisant Railway port 8081");
-  return "https://innovative-serenity-rbe-serveurs.up.railway.app:8081";
+  // SSR: retourner l'URL depuis env ou fallback
+  if (apiUrl) {
+    return apiUrl;
+  }
+  
+  // Fallback SSR (sans port)
+  return "https://innovative-serenity-rbe-serveurs.up.railway.app";
 }
