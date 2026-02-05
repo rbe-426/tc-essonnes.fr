@@ -5,7 +5,7 @@ import PhotoGrid from "../../../../components/PhotoGrid";
 import ImportPhotosModal from "../../../../components/ImportPhotosModal";
 import { useState } from "react";
 
-type PhotoItem = { src: string; title?: string; description?: string };
+type PhotoItem = { src: string; title?: string; description?: string; id?: string };
 
 interface NetworkPageClientProps {
   networkName: string;
