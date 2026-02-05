@@ -45,10 +45,9 @@ function cleanSrc(folder: string, src: string) {
 // Récupérer les photos depuis la BD (via l'API du serveur)
 async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
   try {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
-    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", BACKEND_URL="${backendUrl}"`);
-    const apiUrl = `${backendUrl}/api/photos/${slug}`;
-    console.log(`🔗 [readPhotosFromDatabase] Fetching: ${apiUrl}`);
+    // Utiliser l'URL relative pour les API routes Next.js (même domaine)
+    const apiUrl = `/api/photos-backend/${slug}`;
+    console.log(`📡 [readPhotosFromDatabase] slug="${slug}", endpoint="${apiUrl}"`);
     
     const response = await fetch(apiUrl, { 
       cache: "no-store" 
@@ -67,7 +66,7 @@ async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
     if (data.success && Array.isArray(data.photos)) {
       console.log(`📸 [readPhotosFromDatabase] ${data.photos.length} photos trouvées`);
       return data.photos.map((p: any) => {
-        console.log(`   - Photo: id=${p.id}, src=${p.src}, title=${p.displayTitle || p.title}`);
+        console.log(`   - Photo: src=${p.src}, title=${p.displayTitle || p.title}`);
         return {
           src: p.src,
           title: p.displayTitle || p.title,
