@@ -32,9 +32,7 @@ export async function GET(
     const apiUrl = `${backendUrl}/api/photos/${slug}`;
     console.log(`[photos-backend] Fetching from: ${apiUrl}`);
 
-    const response = await fetch(apiUrl, { 
-      timeout: 10000 // 10s timeout
-    });
+    const response = await fetch(apiUrl);
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "(could not read)");
