@@ -9,6 +9,9 @@ import PhotoGrid from "../../../../components/PhotoGrid";
 import NetworkPageClient from "./client";
 
 export const runtime = "nodejs";
+// 🚨 IMPORTANT: Force dynamic rendering car on fetch des données depuis le backend à la demande
+// Sinon Next.js essaie de pré-générer les pages pendant la build et se connecte à localhost:3001 qui n'existe pas
+export const dynamic = "force-dynamic";
 const VALID_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
 type PhotoItem = { src: string; title?: string; description?: string; id?: string };
 
