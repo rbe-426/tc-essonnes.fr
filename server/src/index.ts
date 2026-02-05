@@ -85,7 +85,13 @@ const startServer = async () => {
     console.log(`   DATABASE_URL present: ${!!process.env.DATABASE_URL}`);
     console.log(`   NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || "NOT SET"}`);
     
-    // Initialiser la base de données (optionnel si pas de DATABASE_URL)
+    // 🚀 DÉMARRER LE SERVEUR D'ABORD (même sans DB)
+    app.listen(PORT, () => {
+      console.log(`✅ Serveur HTTP lancé sur le port ${PORT}`);
+      console.log(`📍 http://localhost:${PORT}`);
+    });
+
+    // Ensuite, initialiser la base de données (optional)
     if (process.env.DATABASE_URL) {
       try {
         console.log("🚀 Tentative de connexion à PostgreSQL...");
@@ -116,16 +122,11 @@ const startServer = async () => {
         if (dbError instanceof Error) {
           console.warn(`   Détail: ${dbError.message}`);
         }
-        console.warn("   Serveur démarrera sans DB");
+        console.warn("   Serveur fonctionne en mode lecture-seule (JSON)");
       }
     } else {
-      console.log("⚠️ DATABASE_URL non défini, serveur démarrera sans BD");
+      console.log("⚠️ DATABASE_URL non défini, serveur fonctionne en mode lecture-seule (JSON)");
     }
-
-    app.listen(PORT, () => {
-      console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-      console.log(`📍 http://localhost:${PORT}`);
-    });
   } catch (error) {
     console.error("❌ Erreur critique au démarrage:", error);
     process.exit(1);
