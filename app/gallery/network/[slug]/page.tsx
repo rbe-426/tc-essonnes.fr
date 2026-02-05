@@ -45,8 +45,11 @@ function cleanSrc(folder: string, src: string) {
 // Récupérer les photos depuis la BD (via l'API du serveur)
 async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
   try {
-    // Utiliser l'URL relative pour les API routes Next.js (même domaine)
-    const apiUrl = `/api/photos-backend/${slug}`;
+    // Utiliser l'URL absolue pour les server components en dev/prod
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const host = process.env.VERCEL_URL || process.env.RAILWAY_STATIC_URL || "localhost:3000";
+    const baseUrl = `${protocol}://${host}`;
+    const apiUrl = `${baseUrl}/api/photos-backend/${slug}`;
     console.log(`📡 [readPhotosFromDatabase] slug="${slug}", endpoint="${apiUrl}"`);
     
     const response = await fetch(apiUrl, { 
