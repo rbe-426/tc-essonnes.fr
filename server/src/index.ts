@@ -70,7 +70,7 @@ app.get("/api/health", (req: any, res: any) => {
   res.json({ success: true, message: "Serveur ok" });
 });
 
-// Diagnostic DB
+// Diagnostic DB with new code
 app.get("/api/db-status", async (req: any, res: any) => {
   try {
     if (!AppDataSource.isInitialized) {
