@@ -15,8 +15,8 @@ const getDatabaseConfig = () => {
     return {
       type: "postgres" as const,
       url: process.env.DATABASE_URL,
-      synchronize: false,
-      logging: !isProduction,
+      synchronize: true, // ✅ Créer les tables automatiquement
+      logging: true, // 🔍 Logs détaillés pour debug
       entities: [Network, Photo, User, AuditLog],
       subscribers: [],
       migrations: isProduction 
@@ -32,7 +32,7 @@ const getDatabaseConfig = () => {
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "postgres",
     database: process.env.DB_NAME || "tce_photos",
-    synchronize: process.env.NODE_ENV === "development",
+    synchronize: true, // ✅ Aussi en dev pour cohérence
     logging: process.env.NODE_ENV === "development",
     entities: [Network, Photo, User, AuditLog],
     subscribers: [],

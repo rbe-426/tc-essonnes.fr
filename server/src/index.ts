@@ -118,9 +118,11 @@ const startServer = async () => {
           console.warn("⚠️ Erreur lors des migrations:", migrationError);
         }
       } catch (dbError) {
-        console.warn("❌ Impossible de se connecter à la BD:");
+        console.error("❌ ERREUR DB CRITIQUE:");
+        console.error(dbError);
         if (dbError instanceof Error) {
-          console.warn(`   Détail: ${dbError.message}`);
+          console.error(`   Détail: ${dbError.message}`);
+          console.error(`   Stack: ${dbError.stack}`);
         }
         console.warn("   Serveur fonctionne en mode lecture-seule (JSON)");
       }
