@@ -8,9 +8,19 @@ export async function GET(
     const { slug } = params;
     console.log(`[photos-backend] Relayant requête pour slug: ${slug}`);
 
-    // Utiliser BACKEND_URL ou fallback
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
-    console.log(`[photos-backend] Backend URL: ${backendUrl}`);
+    // Utiliser BACKEND_URL ou construire depuis l'env
+    const backendUrl = process.env.BACKEND_URL || 
+                       process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}:8080` :
+                       "http://localhost:3001";
+    
+    const debugInfo = {
+      NODE_ENV: process.env.NODE_ENV,
+      BACKEND_URL: process.env.BACKEND_URL,
+      RAILWAY_PUBLIC_DOMAIN: process.env.RAILWAY_PUBLIC_DOMAIN,
+      RAILWAY_PRIVATE_URL: process.env.RAILWAY_PRIVATE_URL,
+      computed_backendUrl: backendUrl,
+    };
+    console.log(`[photos-backend] Debug:`, debugInfo);
 
     const apiUrl = `${backendUrl}/api/photos/${slug}`;
     console.log(`[photos-backend] Fetching: ${apiUrl}`);
@@ -20,7 +30,7 @@ export async function GET(
     if (!response.ok) {
       console.error(`[photos-backend] Backend error: ${response.status}`);
       return NextResponse.json(
-        { success: false, message: "Backend error" },
+        { success: false, message: "Backend error", debug: debugInfo },
         { status: response.status }
       );
     }
@@ -32,7 +42,7 @@ export async function GET(
   } catch (error) {
     console.error("[photos-backend] Error:", error);
     return NextResponse.json(
-      { success: false, message: "Error relaying to backend" },
+      { success: false, message: "Error relaying to backend", error: String(error) },
       { status: 500 }
     );
   }
