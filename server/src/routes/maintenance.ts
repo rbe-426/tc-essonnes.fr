@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
+import { IsNull } from "typeorm";
 import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
@@ -154,7 +155,7 @@ router.post("/fix-orphans", async (req: Request, res: Response) => {
 
     // Trouver toutes les photos sans networkId
     const orphans = await photoRepository.find({
-      where: { networkId: null }
+      where: { networkId: IsNull() }
     });
 
     console.log(`🔍 Trouvées ${orphans.length} photos orphelines`);
