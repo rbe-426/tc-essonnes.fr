@@ -70,7 +70,7 @@ app.get("/api/health", (req: any, res: any) => {
   res.json({ success: true, message: "Serveur ok" });
 });
 
-// Diagnostic DB with new code
+// Diagnostic DB simple
 app.get("/api/db-status", async (req: any, res: any) => {
   try {
     if (!AppDataSource.isInitialized) {
@@ -82,14 +82,76 @@ app.get("/api/db-status", async (req: any, res: any) => {
     
     const totalPhotos = await photoRepo.count();
     const totalNetworks = await networkRepo.count();
+    const photosWithImageData = await photoRepo.createQueryBuilder("photo")
+      .where("photo.imageData IS NOT NULL")
+      .getCount();
     
     res.json({ 
       success: true, 
       db: {
         connected: true,
         photos: totalPhotos,
+        photosWithImageData,
         networks: totalNetworks
       }
+    });
+  } catch (error) {
+    res.status(503).json({ success: false, error: String(error) });
+  }
+});
+
+// Diagnostic DB détaillé
+app.get("/api/db-audit", async (req: any, res: any) => {
+  try {
+    if (!AppDataSource.isInitialized) {
+      return res.status(503).json({ success: false, message: "DB not initialized" });
+    }
+    
+    const photoRepo = AppDataSource.getRepository("Photo");
+    const networkRepo = AppDataSource.getRepository("Network");
+    
+    // Tous les réseaux
+    const networks = await networkRepo.find();
+    
+    // Toutes les photos avec détails
+    const allPhotos = await photoRepo.find({ relations: ["network"] });
+    
+    // Photos groupées par réseau
+    const photosByNetwork: Record<string, any> = {};
+    for (const net of networks) {
+      const photos = allPhotos.filter(p => p.networkId === net.id);
+      photosByNetwork[net.slug] = {
+        networkId: net.id,
+        count: photos.length,
+        hasImageData: photos.filter(p => !!p.imageData).length,
+        photos: photos.slice(0, 3).map(p => ({
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          hasImageData: !!p.imageData
+        }))
+      };
+    }
+    
+    // Photos sans networkId
+    const orphanPhotos = allPhotos.filter(p => !p.networkId);
+    
+    res.json({ 
+      success: true, 
+      summary: {
+        totalNetworks: networks.length,
+        totalPhotos: allPhotos.length,
+        photosWithImage: allPhotos.filter(p => !!p.imageData).length,
+        orphanPhotos: orphanPhotos.length
+      },
+      networks,
+      photosByNetwork,
+      orphanPhotos: orphanPhotos.slice(0, 5).map(p => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        networkId: p.networkId
+      }))
     });
   } catch (error) {
     res.status(503).json({ success: false, error: String(error) });
