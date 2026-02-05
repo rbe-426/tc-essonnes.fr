@@ -18,8 +18,8 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
   useEffect(() => {
     const loadText = async () => {
       try {
-        const serverUrl = getServerUrl();
-        const response = await fetch(`${serverUrl}/api/editable-content/${id}`);
+        // Utiliser API proxy relative au lieu de URL absolue du backend
+        const response = await fetch(`/api/editable-content/${id}`);
         if (response.ok) {
           const data = await response.json();
           if (data.content) {
@@ -42,8 +42,8 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
 
   const handleSave = async () => {
     try {
-      const serverUrl = getServerUrl();
-      const response = await fetch(`${serverUrl}/api/editable-content/${id}`, {
+      // Utiliser API proxy relative au lieu de URL absolue du backend
+      const response = await fetch(`/api/editable-content/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: text })
@@ -64,8 +64,8 @@ export default function EditableText({ id, defaultText, className = '' }: Editab
     // Recharger la valeur du serveur
     const reloadText = async () => {
       try {
-        const serverUrl = getServerUrl();
-        const response = await fetch(`${serverUrl}/api/editable-content/${id}`);
+        // Utiliser API proxy relative
+        const response = await fetch(`/api/editable-content/${id}`);
         if (response.ok) {
           const data = await response.json();
           setText(data.content || defaultText);
