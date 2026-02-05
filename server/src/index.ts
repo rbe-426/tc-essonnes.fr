@@ -70,6 +70,32 @@ app.get("/api/health", (req: any, res: any) => {
   res.json({ success: true, message: "Serveur ok" });
 });
 
+// Diagnostic DB
+app.get("/api/db-status", async (req: any, res: any) => {
+  try {
+    if (!AppDataSource.isInitialized) {
+      return res.status(503).json({ success: false, message: "DB not initialized" });
+    }
+    
+    const photoRepo = AppDataSource.getRepository("Photo");
+    const networkRepo = AppDataSource.getRepository("Network");
+    
+    const totalPhotos = await photoRepo.count();
+    const totalNetworks = await networkRepo.count();
+    
+    res.json({ 
+      success: true, 
+      db: {
+        connected: true,
+        photos: totalPhotos,
+        networks: totalNetworks
+      }
+    });
+  } catch (error) {
+    res.status(503).json({ success: false, error: String(error) });
+  }
+});
+
 // Erreur 404
 app.use((req: any, res: any) => {
   res.status(404).json({ success: false, message: "Route non trouvée" });
