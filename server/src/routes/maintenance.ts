@@ -146,4 +146,54 @@ router.post("/sync", async (req: Request, res: Response) => {
   }
 });
 
+// 🆕 Endpoint pour fixer les photos orphelines (sans networkId)
+router.post("/fix-orphans", async (req: Request, res: Response) => {
+  try {
+    const photoRepository = AppDataSource.getRepository(Photo);
+    const networkRepository = AppDataSource.getRepository(Network);
+
+    // Trouver toutes les photos sans networkId
+    const orphans = await photoRepository.find({
+      where: { networkId: null }
+    });
+
+    console.log(`🔍 Trouvées ${orphans.length} photos orphelines`);
+
+    let fixed = 0;
+
+    for (const photo of orphans) {
+      // Essayer de trouver le réseau via le slug
+      if (!photo.slug) {
+        console.warn(`⚠️ Photo ${photo.id} n'a pas de slug, impossible à assigner`);
+        continue;
+      }
+
+      const network = await networkRepository.findOne({ where: { slug: photo.slug } });
+      if (!network) {
+        console.warn(`⚠️ Réseau '${photo.slug}' non trouvé pour photo ${photo.id}`);
+        continue;
+      }
+
+      // Assigner le réseau
+      photo.networkId = network.id;
+      await photoRepository.save(photo);
+      fixed++;
+      console.log(`✅ Fixée: ${photo.id} → networkId=${network.id}`);
+    }
+
+    res.json({
+      success: true,
+      message: `${fixed}/${orphans.length} photo(s) corrigée(s)`,
+      orphansFound: orphans.length,
+      orphansFixed: fixed
+    });
+  } catch (error) {
+    console.error("❌ Erreur fix-orphans:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Erreur serveur"
+    });
+  }
+});
+
 export default router;

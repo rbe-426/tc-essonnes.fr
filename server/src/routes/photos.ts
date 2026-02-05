@@ -154,32 +154,37 @@ router.get("/:networkSlug/thumb/:photoId", async (req: any, res: any) => {
 router.get("/:networkSlug", async (req: any, res: any) => {
   try {
     const { networkSlug } = req.params;
-    console.log(`🔍 DEBUG: Requête pour networkSlug="${networkSlug}"`);
+    console.log(`\n🔍 [GET /:networkSlug] Requête pour networkSlug="${networkSlug}"`);
 
+    // 1️⃣ Vérifier que le réseau existe
     const network = await networkRepository.findOne({ where: { slug: networkSlug } });
+    console.log(`   Network trouvé:`, network ? `ID=${network.id}, slug=${network.slug}` : "❌ NULL");
     if (!network) {
       console.warn(`⚠️ Réseau non trouvé: ${networkSlug}`);
       return res.status(404).json({ success: false, message: "Réseau non trouvé" });
     }
 
+    // 2️⃣ Chercher les photos par networkId
+    console.log(`   🔎 Cherchant photos avec networkId=${network.id}`);
     const photos = await photoRepository.find({
       where: { networkId: network.id },
       order: { order: "ASC" },
     });
+    console.log(`   📊 Trouvées ${photos.length} photos`);
 
-    console.log(`📊 ${networkSlug}: ${photos.length} photos en DB`);
+    // 3️⃣ Debug: afficher les détails
     photos.forEach((p, i) => {
-      console.log(`   Photo ${i}: id=${p.id}, slug="${p.slug}", title="${p.title}"`);
+      console.log(`      Photo ${i}: id=${p.id}, slug="${p.slug}", title="${p.title}", displayTitle="${p.displayTitle}", hasImageData=${!!p.imageData}`);
     });
 
-    // Mapper les photos pour afficher displayTitle/displayDesc ou title/desc en fallback
+    // 4️⃣ Mapper et filtrer
     const mappedPhotos = photos.map((p: Photo) => {
       if (!p.imageData) {
-        console.warn(`⚠️ Photo ${p.id} (${p.slug}) n'a pas d'imageData`);
+        console.warn(`   ⚠️ FILTRÉE (pas d'imageData): ${p.id}`);
         return null;
       }
       const srcUrl = `/api/photos/${p.slug}/image/${p.id}`;
-      console.log(`   ✓ Photo ${p.id}: src="${srcUrl}"`);
+      console.log(`   ✓ INCLUSE: ${p.id} → src="${srcUrl}"`);
       return {
         ...p,
         src: srcUrl,
@@ -188,7 +193,7 @@ router.get("/:networkSlug", async (req: any, res: any) => {
       };
     }).filter(p => p !== null);
 
-    console.log(`✓ ${mappedPhotos.length} photos valides retournées`);
+    console.log(`   ✅ Retournant ${mappedPhotos.length} photos valides\n`);
     return res.json({ success: true, photos: mappedPhotos, network });
   } catch (error) {
     console.error("Erreur GET photos:", error);
