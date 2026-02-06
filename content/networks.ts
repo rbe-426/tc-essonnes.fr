@@ -34,7 +34,7 @@ export const networks: Network[] = [
   {
     img: "/networks/reseau-retrobus-essonne.png",
     href: "/gallery/network/retrobus-essonne",
-    name: "Retrobus Essonne",
+    name: "Association RétroBus Essonne",
     slug: "retrobus-essonne",
     folder: "retrobus-essonne",
     h: 110,
