@@ -128,7 +128,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
             overflow: "hidden",
             cursor: isDragging ? "grabbing" : zoom > 1 ? "grab" : "zoom-in"
           }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={() => setDetailedZoom(false)}
           onWheel={handleWheel}
         >
           <img 
@@ -139,6 +139,7 @@ export default function Lightbox({ items }: { items: Item[] }) {
             onContextMenu={(e) => e.preventDefault()}
             draggable={false}
             onMouseDown={handleMouseDown}
+            onClick={(e) => e.stopPropagation()}
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
@@ -152,7 +153,10 @@ export default function Lightbox({ items }: { items: Item[] }) {
           />
           <button 
             className="lb-x" 
-            onClick={() => setDetailedZoom(false)} 
+            onClick={(e) => {
+              e.stopPropagation();
+              setDetailedZoom(false);
+            }} 
             aria-label="Fermer le zoom"
             style={{
               position: "absolute",
@@ -163,8 +167,26 @@ export default function Lightbox({ items }: { items: Item[] }) {
           >
             ×
           </button>
-          <button className="lb-nav lb-prev" onClick={prev} aria-label="Précédent">❮</button>
-          <button className="lb-nav lb-next" onClick={next} aria-label="Suivant">❯</button>
+          <button
+            className="lb-nav lb-prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              prev();
+            }}
+            aria-label="Précédent"
+          >
+            ❮
+          </button>
+          <button
+            className="lb-nav lb-next"
+            onClick={(e) => {
+              e.stopPropagation();
+              next();
+            }}
+            aria-label="Suivant"
+          >
+            ❯
+          </button>
         </div>
       </div>
     );
