@@ -5,7 +5,7 @@ import WeeklyPhoto from "../components/WeeklyPhoto";
 import FeaturedNetworks from "../components/FeaturedNetworks";
 import { DiscordWidget } from "../components/PhotoOfMonth";
 import StatsSection from "../components/StatsSection";
-import EditableText from "../components/EditableText";
+import TcNewsSection from "../components/TcNewsSection";
 
 import { getLatestPhotos } from "../lib/getLatestPhotos";
 import LatestAdditionsWrapper from "../components/LatestAdditionsWrapper";
@@ -36,11 +36,7 @@ export default async function HomePage() {
 
           {/* ACTUALITÉS SECTION */}
           <section className="bubble hero-section">
-            <h2>Les dernières Actualités de TC</h2>
-            <EditableText 
-              id="hero-text"
-              defaultText="Une photothèque complète dédiée aux transports en Île-de-France. Explorez des centaines de clichés des réseaux les plus emblématiques de la région."
-            />
+            <TcNewsSection />
           </section>
         </div>
 
