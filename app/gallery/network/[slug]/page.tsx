@@ -48,33 +48,26 @@ function cleanSrc(folder: string, src: string) {
 // Récupérer les photos depuis la BD (via l'API du serveur)
 async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
   try {
-    // Construire l'URL absolue depuis les headers ou l'env
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    // Railway: utiliser RAILWAY_PUBLIC_DOMAIN si disponible
-    const host = process.env.RAILWAY_PUBLIC_DOMAIN || 
-                 process.env.VERCEL_URL || 
-                 process.env.RAILWAY_STATIC_URL || 
-                 "localhost:3000";
-    const baseUrl = `${protocol}://${host}`;
-    const apiUrl = `${baseUrl}/api/photos-backend/${slug}`;
-    
-    // 🔍 DEBUG COMPLET
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+    if (!backendUrl) {
+      console.error("❌ [DB_FETCH] BACKEND_URL manquant");
+      return [];
+    }
+
+    const apiUrl = `${backendUrl}/api/photos/${slug}`;
+
     const debugInfo = {
       slug,
       NODE_ENV: process.env.NODE_ENV,
-      RAILWAY_PUBLIC_DOMAIN: process.env.RAILWAY_PUBLIC_DOMAIN,
-      VERCEL_URL: process.env.VERCEL_URL,
-      RAILWAY_STATIC_URL: process.env.RAILWAY_STATIC_URL,
-      protocol,
-      host,
-      baseUrl,
+      BACKEND_URL_set: !!process.env.BACKEND_URL,
+      NEXT_PUBLIC_API_URL_set: !!process.env.NEXT_PUBLIC_API_URL,
       apiUrl,
       timestamp: new Date().toISOString(),
     };
     console.log(`🚀 [DB_FETCH] Démarrage:`, debugInfo);
-    
-    const response = await fetch(apiUrl, { 
-      cache: "no-store" 
+
+    const response = await fetch(apiUrl, {
+      cache: "no-store",
     });
     
     console.log(`📊 [DB_FETCH] Response:`, {
