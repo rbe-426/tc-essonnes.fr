@@ -1,4 +1,6 @@
 import express from "express";
+import fs from "fs";
+import path from "path";
 import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
@@ -82,6 +84,28 @@ router.get("/:networkSlug/image/:photoId", async (req: any, res: any) => {
     }
 
     if (!photo.imageData) {
+      // Fallback: servir le fichier depuis public/photos si present
+      const src = photo.src || "";
+      if (src.startsWith("/photos/")) {
+        const projectRoot = path.join(__dirname, "..", "..", "..");
+        const filePath = path.join(projectRoot, "public", src.replace(/^\/+/, ""));
+        if (fs.existsSync(filePath)) {
+          const ext = path.extname(filePath).toLowerCase();
+          const contentType =
+            ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" :
+            ext === ".png" ? "image/png" :
+            ext === ".webp" ? "image/webp" :
+            ext === ".gif" ? "image/gif" :
+            "application/octet-stream";
+
+          const fileBuffer = fs.readFileSync(filePath);
+          res.setHeader("Content-Type", contentType);
+          res.setHeader("Content-Length", fileBuffer.length);
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          return res.send(fileBuffer);
+        }
+      }
+
       console.error(`❌ Pas de imageData pour la photo ${photoId}`);
       return res.status(404).json({ success: false, message: "Image manquante" });
     }
