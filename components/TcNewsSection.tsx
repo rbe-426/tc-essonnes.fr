@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useEditContext } from "@/contexts/EditContext";
 import { getServerUrl } from "@/lib/serverUrl";
 
@@ -26,6 +27,9 @@ export default function TcNewsSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+  const [zoomTitle, setZoomTitle] = useState<string | null>(null);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -33,6 +37,14 @@ export default function TcNewsSection() {
   const [linkLabel, setLinkLabel] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    if (!zoomSrc) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [zoomSrc]);
 
   const resetForm = () => {
     setEditingId(null);
@@ -148,7 +160,22 @@ export default function TcNewsSection() {
             <article key={item.id} className="tc-news-item">
               {item.imageUrl && (
                 <div className="tc-news-thumb">
-                  <img src={normalizeImageUrl(item.imageUrl)} alt={item.title} />
+                  <img
+                    src={normalizeImageUrl(item.imageUrl)}
+                    alt={item.title}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      setZoomSrc(normalizeImageUrl(item.imageUrl!));
+                      setZoomTitle(item.title || null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setZoomSrc(normalizeImageUrl(item.imageUrl!));
+                        setZoomTitle(item.title || null);
+                      }
+                    }}
+                  />
                 </div>
               )}
               <div className="tc-news-content">
@@ -213,6 +240,19 @@ export default function TcNewsSection() {
             )}
           </div>
         </form>
+      )}
+
+      {zoomSrc && typeof document !== "undefined" && createPortal(
+        <div className="tc-news-zoom" onClick={() => setZoomSrc(null)} role="dialog" aria-modal="true">
+          <div className="tc-news-zoom-inner" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="tc-news-zoom-close" onClick={() => setZoomSrc(null)} aria-label="Fermer">
+              ×
+            </button>
+            <img src={zoomSrc} alt={zoomTitle || ""} />
+            {zoomTitle && <div className="tc-news-zoom-caption">{zoomTitle}</div>}
+          </div>
+        </div>,
+        document.body
       )}
     </section>
   );
