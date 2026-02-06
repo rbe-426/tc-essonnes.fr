@@ -21,6 +21,8 @@ export default function SiteHeader({
   const { isEditMode } = useEditContext();
   const links = [
     { href: "/gallery",        label: "Galeries Photos" },
+    { href: "/court-metrage",  label: "Les TC Dossiers" },
+    { href: "/asso",           label: "Mon asso de collection" },
   ];
 
   return (

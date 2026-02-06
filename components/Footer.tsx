@@ -17,6 +17,7 @@ export default function Footer() {
           <h4 className="site-footer__subtitle">Navigation</h4>
           <ul className="site-footer__links">
             <li><Link href="/gallery">Galeries</Link></li>
+            <li><Link href="/asso">À propos</Link></li>
           </ul>
         </div>
 

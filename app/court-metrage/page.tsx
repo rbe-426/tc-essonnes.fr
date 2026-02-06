@@ -1,1 +1,5 @@
-export default function Page(){ return <h1>Mon court-métrage</h1>; }
+export const metadata = {
+	title: "Les TC Dossiers",
+};
+
+export default function Page(){ return <h1>Les TC Dossiers</h1>; }
