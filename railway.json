@@ -3,6 +3,6 @@
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "cd server && npm install && npm run build",
-    "startCommand": "cd server && PORT=8080 node dist/index.js"
+    "startCommand": "cd server && PORT=8081 node dist/index.js"
   }
 }
