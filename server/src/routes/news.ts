@@ -105,7 +105,7 @@ router.post("/", adminAuth, maybeUpload, async (req: any, res: any) => {
       linkLabel: linkLabel || null,
       imageData: imageData || null,
       imageMime: imageMime || null,
-    });
+    } as Partial<NewsItem>);
 
     const saved = await newsRepository.save(item);
 
