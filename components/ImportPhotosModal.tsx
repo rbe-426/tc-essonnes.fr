@@ -305,7 +305,8 @@ export default function ImportPhotosModal({
           <div
             style={{
               flex: 1,
-              overflow: "hidden",
+              overflow: "auto",
+              maxHeight: "600px",
               padding: "16px",
               backgroundColor: "#1a1a1a",
               position: "relative",
