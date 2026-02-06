@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 // Sinon Next.js essaie de pré-générer les pages pendant la build et se connecte à localhost:3001 qui n'existe pas
 export const dynamic = "force-dynamic";
 const VALID_EXT = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
-type PhotoItem = { src: string; title?: string; description?: string; id?: string };
+type PhotoItem = { src: string; title?: string; description?: string; id?: string; date?: string };
 
 const norm = (s: string) =>
   String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -93,6 +93,7 @@ async function readPhotosFromDatabase(slug: string): Promise<PhotoItem[]> {
           title: p.displayTitle || p.title,
           description: p.displayDesc || p.desc,
           id: p.id,
+          date: p.date || null,
         };
         console.log(`   ✓ Photo mappée:`, item);
         return item;
@@ -136,6 +137,7 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
             title: p.title,
             description: p.description,
             id: generateFallbackId(src),
+            date: p.date,
           };
         });
     } catch (err) {
@@ -156,6 +158,7 @@ function readPhotosFromFolder(folder: string): PhotoItem[] {
       title: meta.title,
       description: meta.description,
       id: generateFallbackId(src),
+      date: meta.date,
     };
   });
 }

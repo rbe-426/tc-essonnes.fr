@@ -202,6 +202,8 @@ router.get("/:networkSlug", async (req: any, res: any) => {
     });
 
     // 4️⃣ Mapper et filtrer
+    const projectRoot = path.join(__dirname, "..", "..", "..");
+
     const mappedPhotos = photos.map((p: Photo) => {
       if (!p.imageData) {
         console.warn(`   ⚠️ FILTRÉE (pas d'imageData): ${p.id}`);
@@ -209,11 +211,30 @@ router.get("/:networkSlug", async (req: any, res: any) => {
       }
       const srcUrl = `/api/photos/${p.slug}/image/${p.id}`;
       console.log(`   ✓ INCLUSE: ${p.id} → src="${srcUrl}"`);
+
+      let fallbackDate: string | null = null;
+      if (!p.date && p.src?.startsWith("/photos/")) {
+        const filePath = path.join(projectRoot, "public", p.src.replace(/^\/+/, ""));
+        if (fs.existsSync(filePath)) {
+          try {
+            const stat = fs.statSync(filePath);
+            fallbackDate = stat.mtime.toISOString();
+          } catch {
+            fallbackDate = null;
+          }
+        }
+      }
+
+      if (!fallbackDate && p.createdAt) {
+        fallbackDate = p.createdAt.toISOString();
+      }
+
       return {
         ...p,
         src: srcUrl,
         displayTitle: p.displayTitle || p.title,
         displayDesc: p.displayDesc || p.desc,
+        date: p.date || fallbackDate,
       };
     }).filter(p => p !== null);
 
