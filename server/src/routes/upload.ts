@@ -26,8 +26,9 @@ const upload = multer({
 router.post("/", upload.array("files"), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[] || [];
-    const titles = req.body["titles[]"] || [];
-    const descriptions = req.body["descriptions[]"] || [];
+    const body = req.body as Record<string, any>;
+    const titles = body["titles[]"] || [];
+    const descriptions = body["descriptions[]"] || [];
     const networkSlug = req.body.networkSlug || "imported"; // Utilise "imported" par défaut
 
     console.log(`📸 Upload de ${files.length} photos pour le réseau: ${networkSlug}`);
@@ -54,8 +55,10 @@ router.post("/", upload.array("files"), async (req: Request, res: Response) => {
     // Traiter chaque fichier
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const title = Array.isArray(titles) ? titles[i] : titles;
-      const description = Array.isArray(descriptions) ? descriptions[i] : descriptions;
+      const indexedTitle = body[`titles[${i}]`];
+      const indexedDesc = body[`descriptions[${i}]`];
+      const title = indexedTitle ?? (Array.isArray(titles) ? titles[i] : titles);
+      const description = indexedDesc ?? (Array.isArray(descriptions) ? descriptions[i] : descriptions);
       
       try {
         // Compresser l'image et convertir en base64
