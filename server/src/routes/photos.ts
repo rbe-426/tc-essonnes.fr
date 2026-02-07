@@ -4,11 +4,13 @@ import path from "path";
 import { AppDataSource } from "../database";
 import { Photo } from "../entities/Photo";
 import { Network } from "../entities/Network";
+import { WeeklySelection } from "../entities/WeeklySelection";
 import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 const photoRepository = AppDataSource.getRepository(Photo);
 const networkRepository = AppDataSource.getRepository(Network);
+const weeklyRepository = AppDataSource.getRepository(WeeklySelection);
 
 function getLastSundayAtSixUtc(): Date {
   const now = new Date();
@@ -23,6 +25,47 @@ function getLastSundayAtSixUtc(): Date {
 function seededIndex(seed: number, total: number): number {
   if (total <= 0) return 0;
   return seed % total;
+}
+
+async function pickRandomPhoto(excludeSlug?: string | null) {
+  let query = photoRepository
+    .createQueryBuilder("photo")
+    .where("photo.slug IS NOT NULL");
+
+  if (excludeSlug) {
+    query = query.andWhere("photo.slug <> :excludeSlug", { excludeSlug });
+  }
+
+  const total = await query.getCount();
+  if (total === 0) {
+    if (excludeSlug) {
+      return pickRandomPhoto(null);
+    }
+    return null;
+  }
+
+  const offset = Math.floor(Math.random() * total);
+
+  const photo = await query
+    .orderBy("photo.createdAt", "DESC")
+    .addOrderBy("photo.id", "DESC")
+    .offset(offset)
+    .limit(1)
+    .select([
+      "photo.id",
+      "photo.src",
+      "photo.title",
+      "photo.displayTitle",
+      "photo.desc",
+      "photo.displayDesc",
+      "photo.slug",
+      "photo.brand",
+      "photo.model",
+      "photo.createdAt",
+    ])
+    .getOne();
+
+  return photo || null;
 }
 
 // GET latest photos pour le frontend (LatestItem format)
@@ -145,79 +188,30 @@ router.get("/latest", async (req: any, res: any) => {
 // GET photo de la semaine (stable jusqu'au dimanche 18h UTC)
 router.get("/weekly-photo", async (req: any, res: any) => {
   try {
-    const cutoff = getLastSundayAtSixUtc();
-    const seed = Math.floor(cutoff.getTime() / 1000);
+    const weekStart = getLastSundayAtSixUtc();
 
-    const total = await photoRepository
-      .createQueryBuilder("photo")
-      .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
-      .andWhere("photo.slug IS NOT NULL")
-      .getCount();
+    let selection = await weeklyRepository.findOne({ where: { weekStart } });
+    if (!selection) {
+      const previous = await weeklyRepository.find({
+        order: { weekStart: "DESC" },
+        take: 1,
+      });
+      const previousSlug = previous[0]?.slug || null;
 
-    if (total === 0) {
-      const latest = await photoRepository
-        .createQueryBuilder("photo")
-        .where("photo.slug IS NOT NULL")
-        .orderBy("photo.createdAt", "DESC")
-        .addOrderBy("photo.id", "DESC")
-        .limit(1)
-        .select([
-          "photo.id",
-          "photo.src",
-          "photo.title",
-          "photo.displayTitle",
-          "photo.desc",
-          "photo.displayDesc",
-          "photo.slug",
-          "photo.brand",
-          "photo.model",
-          "photo.createdAt",
-        ])
-        .getOne();
-
-      if (!latest || !latest.slug) {
+      const picked = await pickRandomPhoto(previousSlug);
+      if (!picked || !picked.slug) {
         return res.json({ success: true, photo: null });
       }
 
-      return res.json({
-        success: true,
-        photo: {
-          href: `/gallery/network/${latest.slug}`,
-          slug: latest.slug,
-          src: `/api/photos/${latest.slug}/image/${latest.id}`,
-          title: latest.displayTitle || latest.title || null,
-          description: latest.displayDesc || latest.desc || null,
-          brand: latest.brand || null,
-          model: latest.model || null,
-          mtime: new Date(latest.createdAt).getTime(),
-        },
+      selection = weeklyRepository.create({
+        weekStart,
+        photoId: picked.id,
+        slug: picked.slug,
       });
+      await weeklyRepository.save(selection);
     }
 
-    const offset = seededIndex(seed, total);
-
-    const photo = await photoRepository
-      .createQueryBuilder("photo")
-      .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
-      .andWhere("photo.slug IS NOT NULL")
-      .orderBy("photo.createdAt", "DESC")
-      .addOrderBy("photo.id", "DESC")
-      .offset(offset)
-      .limit(1)
-      .select([
-        "photo.id",
-        "photo.src",
-        "photo.title",
-        "photo.displayTitle",
-        "photo.desc",
-        "photo.displayDesc",
-        "photo.slug",
-        "photo.brand",
-        "photo.model",
-        "photo.createdAt",
-      ])
-      .getOne();
-
+    const photo = await photoRepository.findOne({ where: { id: selection.photoId } });
     if (!photo || !photo.slug) {
       return res.json({ success: true, photo: null });
     }
@@ -409,6 +403,7 @@ router.get("/:networkSlug", async (req: any, res: any) => {
         displayTitle: p.displayTitle || p.title,
         displayDesc: p.displayDesc || p.desc,
         date: p.date || fallbackDate,
+        createdAt: p.createdAt,
       };
     }).filter(p => p !== null);
 

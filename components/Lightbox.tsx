@@ -4,8 +4,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { getBusBrandBySlug, getBusModelBySlug } from "@/content/busModels";
 import { getServerUrl } from "@/lib/serverUrl";
+import { useEditContext } from "@/contexts/EditContext";
 
-type Item = { src: string; title?: string; description?: string; brand?: string; model?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string };
 
 // Normaliser l'URL de l'image
 function normalizeImageUrl(src: string): string {
@@ -24,6 +25,7 @@ function normalizeImageUrl(src: string): string {
 }
 
 export default function Lightbox({ items }: { items: Item[] }) {
+  const { isEditMode } = useEditContext();
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -32,6 +34,9 @@ export default function Lightbox({ items }: { items: Item[] }) {
   const [panY, setPanY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftDesc, setDraftDesc] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // fonction globale pour ouvrir
   useEffect(() => {
@@ -76,8 +81,15 @@ export default function Lightbox({ items }: { items: Item[] }) {
     return () => window.removeEventListener("wheel", handleWheel);
   }, [open]);
 
-  if (!open || !items.length) return null;
   const it = items[idx];
+
+  useEffect(() => {
+    if (!open || !it) return;
+    setDraftTitle(it.title || "");
+    setDraftDesc(it.description || "");
+  }, [open, it?.id, it?.title, it?.description]);
+
+  if (!open || !items.length || !it) return null;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (zoom <= 1) return;
@@ -93,6 +105,40 @@ export default function Lightbox({ items }: { items: Item[] }) {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  const handleSaveMeta = async () => {
+    if (!isEditMode) return;
+    if (!it?.id) {
+      alert("Erreur: photo sans ID");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const networkSlug = window.location.pathname.split("/").pop();
+      const serverUrl = getServerUrl();
+      const response = await fetch(`${serverUrl}/api/photos/${networkSlug}/${it.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayTitle: draftTitle,
+          displayDesc: draftDesc,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.message || "Erreur lors de la sauvegarde");
+        return;
+      }
+
+      window.dispatchEvent(new Event("photos-updated"));
+    } catch (error) {
+      alert("Erreur lors de la sauvegarde");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Mode zoom détaillé fullscreen
@@ -259,8 +305,64 @@ export default function Lightbox({ items }: { items: Item[] }) {
               </div>
             ) : null;
           })()}
-          {it.title && <div className="lb-title">{it.title}</div>}
-          {it.description && <div className="lb-desc">{it.description}</div>}
+          {!isEditMode && it.title && <div className="lb-title">{it.title}</div>}
+          {!isEditMode && it.description && <div className="lb-desc">{it.description}</div>}
+
+          {isEditMode && (
+            <div style={{ display: "grid", gap: "10px" }}>
+              <label style={{ display: "grid", gap: "6px", fontSize: "0.9rem" }}>
+                Titre
+                <input
+                  value={draftTitle}
+                  onChange={(e) => setDraftTitle(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(255,255,255,.2)",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#fff",
+                    fontFamily: "inherit",
+                  }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: "6px", fontSize: "0.9rem" }}>
+                Description
+                <textarea
+                  value={draftDesc}
+                  onChange={(e) => setDraftDesc(e.target.value)}
+                  style={{
+                    width: "100%",
+                    minHeight: "90px",
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(255,255,255,.2)",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#fff",
+                    fontFamily: "inherit",
+                    resize: "vertical",
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={handleSaveMeta}
+                disabled={isSaving}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "#2196f3",
+                  color: "#fff",
+                  fontWeight: 600,
+                  cursor: isSaving ? "not-allowed" : "pointer",
+                  opacity: isSaving ? 0.7 : 1,
+                }}
+              >
+                {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+              </button>
+            </div>
+          )}
         </aside>
       </div>
     </div>

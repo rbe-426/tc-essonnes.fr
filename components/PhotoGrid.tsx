@@ -7,7 +7,7 @@ import PhotoEditModal from "./PhotoEditModal";
 import { useEditContext } from "@/contexts/EditContext";
 import { getServerUrl } from "@/lib/serverUrl";
 
-type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string; date?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string; date?: string; createdAt?: string };
 
 function fileTitleFallback(src: string) {
   try {
@@ -58,8 +58,8 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
 
   // Tri automatique par numéro en début de titre
   const sortedItems = [...items].sort((a, b) => {
-    const dateA = parseDateValue(a.date);
-    const dateB = parseDateValue(b.date);
+    const dateA = parseDateValue(a.date) ?? parseDateValue(a.createdAt);
+    const dateB = parseDateValue(b.date) ?? parseDateValue(b.createdAt);
 
     if (dateA !== null && dateB !== null) {
       return dateB - dateA; // plus recentes d'abord
