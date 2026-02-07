@@ -155,7 +155,43 @@ router.get("/weekly-photo", async (req: any, res: any) => {
       .getCount();
 
     if (total === 0) {
-      return res.json({ success: true, photo: null });
+      const latest = await photoRepository
+        .createQueryBuilder("photo")
+        .where("photo.slug IS NOT NULL")
+        .orderBy("photo.createdAt", "DESC")
+        .addOrderBy("photo.id", "DESC")
+        .limit(1)
+        .select([
+          "photo.id",
+          "photo.src",
+          "photo.title",
+          "photo.displayTitle",
+          "photo.desc",
+          "photo.displayDesc",
+          "photo.slug",
+          "photo.brand",
+          "photo.model",
+          "photo.createdAt",
+        ])
+        .getOne();
+
+      if (!latest || !latest.slug) {
+        return res.json({ success: true, photo: null });
+      }
+
+      return res.json({
+        success: true,
+        photo: {
+          href: `/gallery/network/${latest.slug}`,
+          slug: latest.slug,
+          src: `/api/photos/${latest.slug}/image/${latest.id}`,
+          title: latest.displayTitle || latest.title || null,
+          description: latest.displayDesc || latest.desc || null,
+          brand: latest.brand || null,
+          model: latest.model || null,
+          mtime: new Date(latest.createdAt).getTime(),
+        },
+      });
     }
 
     const offset = seededIndex(seed, total);
