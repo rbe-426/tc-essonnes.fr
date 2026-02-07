@@ -10,6 +10,21 @@ const router = express.Router();
 const photoRepository = AppDataSource.getRepository(Photo);
 const networkRepository = AppDataSource.getRepository(Network);
 
+function getLastSundayAtSixUtc(): Date {
+  const now = new Date();
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const msPerWeek = 7 * msPerDay;
+  const referenceTime = new Date("1970-01-04T18:00:00Z").getTime();
+  const weeksSinceReference = Math.floor((now.getTime() - referenceTime) / msPerWeek);
+  const lastSundayAtSix = referenceTime + weeksSinceReference * msPerWeek;
+  return new Date(lastSundayAtSix);
+}
+
+function seededIndex(seed: number, total: number): number {
+  if (total <= 0) return 0;
+  return seed % total;
+}
+
 // GET latest photos pour le frontend (LatestItem format)
 router.get("/latest", async (req: any, res: any) => {
   try {
@@ -62,6 +77,68 @@ router.get("/latest", async (req: any, res: any) => {
     return res.json({ success: true, items: mapped });
   } catch (error) {
     console.error("Error fetching latest photos:", error);
+    return res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+});
+
+// GET photo de la semaine (stable jusqu'au dimanche 18h UTC)
+router.get("/weekly", async (req: any, res: any) => {
+  try {
+    const cutoff = getLastSundayAtSixUtc();
+    const seed = Math.floor(cutoff.getTime() / 1000);
+
+    const total = await photoRepository
+      .createQueryBuilder("photo")
+      .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
+      .andWhere("photo.slug IS NOT NULL")
+      .getCount();
+
+    if (total === 0) {
+      return res.json({ success: true, photo: null });
+    }
+
+    const offset = seededIndex(seed, total);
+
+    const photo = await photoRepository
+      .createQueryBuilder("photo")
+      .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
+      .andWhere("photo.slug IS NOT NULL")
+      .orderBy("photo.createdAt", "DESC")
+      .addOrderBy("photo.id", "DESC")
+      .offset(offset)
+      .limit(1)
+      .select([
+        "photo.id",
+        "photo.src",
+        "photo.title",
+        "photo.displayTitle",
+        "photo.desc",
+        "photo.displayDesc",
+        "photo.slug",
+        "photo.brand",
+        "photo.model",
+        "photo.createdAt",
+      ])
+      .getOne();
+
+    if (!photo || !photo.slug) {
+      return res.json({ success: true, photo: null });
+    }
+
+    const mapped = {
+      href: `/gallery/network/${photo.slug}`,
+      slug: photo.slug,
+      src: `/api/photos/${photo.slug}/image/${photo.id}`,
+      title: photo.displayTitle || photo.title || null,
+      description: photo.displayDesc || photo.desc || null,
+      brand: photo.brand || null,
+      model: photo.model || null,
+      mtime: new Date(photo.createdAt).getTime(),
+    };
+
+    return res.json({ success: true, photo: mapped });
+  } catch (error) {
+    console.error("Error fetching weekly photo:", error);
     return res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 });

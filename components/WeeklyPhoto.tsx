@@ -1,44 +1,18 @@
 import Link from "next/link";
 import type { LatestItem } from "@/lib/getLatestPhotos";
-import { getLatestPhotos } from "@/lib/getLatestPhotos";
 import ImageWithFallback from "./ImageWithFallback";
 
-// Fonction pour calculer le seed basé sur la semaine (dimanche 18h UTC)
-function getWeekSeed(): number {
-  const now = new Date();
-  const utcTime = now.getTime();
-  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  const referenceTime = new Date("1970-01-04T18:00:00Z").getTime();
-  const weeksSinceReference = Math.floor((utcTime - referenceTime) / msPerWeek);
-  const lastSundayAtSix = referenceTime + weeksSinceReference * msPerWeek;
-  return Math.floor(lastSundayAtSix / 1000);
-}
-
-// Fonction simple pour générer un nombre pseudo-aléatoire déterministe
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
+async function getWeeklyPhoto(): Promise<LatestItem | null> {
+  const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
+  const response = await fetch(`${backendUrl}/api/photos/weekly`, { cache: "no-store" });
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.photo || null;
 }
 
 export default async function WeeklyPhoto() {
   try {
-    const latest = await getLatestPhotos(100);
-    
-    if (!latest || latest.length === 0) {
-      return (
-        <article className="bubble-card photo-card">
-          <div className="photo-head">Photo de la semaine</div>
-          <div style={{ padding: "20px", textAlign: "center", color: "#999" }}>
-            Photo non disponible
-          </div>
-        </article>
-      );
-    }
-
-    // Utiliser le seed basé sur la semaine (même calcul que l'API)
-    const seed = getWeekSeed();
-    const randomIndex = Math.floor(seededRandom(seed) * latest.length);
-    const photo = latest[randomIndex];
+    const photo = await getWeeklyPhoto();
 
     if (!photo) {
       return (
