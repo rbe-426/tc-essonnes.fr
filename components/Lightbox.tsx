@@ -6,7 +6,7 @@ import { getBusBrandBySlug, getBusModelBySlug } from "@/content/busModels";
 import { getServerUrl } from "@/lib/serverUrl";
 import { useEditContext } from "@/contexts/EditContext";
 
-type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string; isReformed?: boolean; isPreserved?: boolean };
 
 // Normaliser l'URL de l'image
 function normalizeImageUrl(src: string): string {
@@ -36,6 +36,8 @@ export default function Lightbox({ items }: { items: Item[] }) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [draftTitle, setDraftTitle] = useState("");
   const [draftDesc, setDraftDesc] = useState("");
+  const [draftIsReformed, setDraftIsReformed] = useState(false);
+  const [draftIsPreserved, setDraftIsPreserved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // fonction globale pour ouvrir
@@ -87,7 +89,9 @@ export default function Lightbox({ items }: { items: Item[] }) {
     if (!open || !it) return;
     setDraftTitle(it.title || "");
     setDraftDesc(it.description || "");
-  }, [open, it?.id, it?.title, it?.description]);
+    setDraftIsReformed(!!it.isReformed);
+    setDraftIsPreserved(!!it.isPreserved);
+  }, [open, it?.id, it?.title, it?.description, it?.isReformed, it?.isPreserved]);
 
   if (!open || !items.length || !it) return null;
 
@@ -124,6 +128,8 @@ export default function Lightbox({ items }: { items: Item[] }) {
         body: JSON.stringify({
           displayTitle: draftTitle,
           displayDesc: draftDesc,
+          isReformed: draftIsReformed,
+          isPreserved: draftIsPreserved,
         }),
       });
 
@@ -344,6 +350,27 @@ export default function Lightbox({ items }: { items: Item[] }) {
                   }}
                 />
               </label>
+              <div style={{ display: "grid", gap: "6px", fontSize: "0.9rem" }}>
+                <span>Statut</span>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <input
+                    type="checkbox"
+                    checked={draftIsReformed}
+                    onChange={(e) => setDraftIsReformed(e.target.checked)}
+                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                  />
+                  <span>Véhicule Réformé</span>
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <input
+                    type="checkbox"
+                    checked={draftIsPreserved}
+                    onChange={(e) => setDraftIsPreserved(e.target.checked)}
+                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                  />
+                  <span>Véhicule Préservé</span>
+                </label>
+              </div>
               <button
                 type="button"
                 onClick={handleSaveMeta}

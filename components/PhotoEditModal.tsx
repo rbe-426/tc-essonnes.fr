@@ -11,6 +11,8 @@ interface Photo {
   description?: string;
   brand?: string;
   model?: string;
+  isReformed?: boolean;
+  isPreserved?: boolean;
 }
 
 interface PhotoEditModalProps {
@@ -71,6 +73,8 @@ export default function PhotoEditModal({
             displayDesc: editPhoto.description,
             brand: editPhoto.brand,
             model: editPhoto.model,
+            isReformed: editPhoto.isReformed,
+            isPreserved: editPhoto.isPreserved,
           }),
         });
 
@@ -96,6 +100,15 @@ export default function PhotoEditModal({
   };
 
   const handleChange = (field: string, value: string) => {
+    if (editPhoto) {
+      setEditPhoto({
+        ...editPhoto,
+        [field]: value,
+      });
+    }
+  };
+
+  const handleToggle = (field: "isReformed" | "isPreserved", value: boolean) => {
     if (editPhoto) {
       setEditPhoto({
         ...editPhoto,
@@ -220,6 +233,40 @@ export default function PhotoEditModal({
               resize: "vertical",
             }}
           />
+        </div>
+
+        <div style={{ marginBottom: "24px" }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "10px",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              opacity: 0.9,
+            }}
+          >
+            Statut
+          </label>
+          <div style={{ display: "grid", gap: "8px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={!!editPhoto?.isReformed}
+                onChange={(e) => handleToggle("isReformed", e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              <span>Véhicule Réformé</span>
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={!!editPhoto?.isPreserved}
+                onChange={(e) => handleToggle("isPreserved", e.target.checked)}
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              <span>Véhicule Préservé</span>
+            </label>
+          </div>
         </div>
 
         <div style={{ marginBottom: "24px" }}>

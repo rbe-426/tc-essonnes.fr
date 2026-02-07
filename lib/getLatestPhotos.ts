@@ -7,6 +7,7 @@ const VALID = new Set([".jpg",".jpeg",".png",".webp",".gif"]);
 export type LatestItem = {
   href: string; slug: string; src: string;
   title?: string | null; description?: string | null; brand?: string | null; model?: string | null; mtime: number;
+  isReformed?: boolean; isPreserved?: boolean;
 };
 
 function folderFor(n: any) {

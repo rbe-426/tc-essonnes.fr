@@ -30,6 +30,12 @@ export class Photo {
   @Column({ nullable: true })
   date: string;
 
+  @Column({ type: "boolean", default: false })
+  isReformed: boolean;
+
+  @Column({ type: "boolean", default: false })
+  isPreserved: boolean;
+
   @Column({ nullable: true, type: "text" })
   desc: string; // Description originale
 

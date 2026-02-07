@@ -7,7 +7,8 @@ import PhotoEditModal from "./PhotoEditModal";
 import { useEditContext } from "@/contexts/EditContext";
 import { getServerUrl } from "@/lib/serverUrl";
 
-type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string; date?: string; createdAt?: string };
+type Item = { src: string; title?: string; description?: string; brand?: string; model?: string; id?: string; date?: string; createdAt?: string; isReformed?: boolean; isPreserved?: boolean };
+type BadgeVariant = "reformed" | "preserved";
 
 function fileTitleFallback(src: string) {
   try {
@@ -25,6 +26,29 @@ function parseDateValue(value?: string): number | null {
   if (!value) return null;
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? null : parsed;
+}
+
+function getBadges(item: Item): { text: string; variant: BadgeVariant }[] {
+  const badges: { text: string; variant: BadgeVariant }[] = [];
+  if (item.isReformed) badges.push({ text: "Véhicule Réformé", variant: "reformed" });
+  if (item.isPreserved) badges.push({ text: "Véhicule Préservé", variant: "preserved" });
+  return badges;
+}
+
+function badgeStyle(variant: BadgeVariant) {
+  const bg = variant === "reformed" ? "#c62828" : "#2e7d32";
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "2px 6px",
+    borderRadius: "999px",
+    fontSize: "0.65rem",
+    fontWeight: 700,
+    letterSpacing: "0.02em",
+    color: "#fff",
+    backgroundColor: bg,
+    boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+  } as const;
 }
 
 // Normaliser l'URL de l'image - ajouter le serverUrl si relatif
@@ -148,6 +172,7 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
       <div className="photo-grid" style={{ marginTop: 16 }} onClick={handleCloseContextMenu}>
         {sortedItems.map((p) => {
           const title = p.title || fileTitleFallback(p.src);
+          const badges = getBadges(p);
           return (
             <div
               key={p.src}
@@ -169,6 +194,26 @@ export default function PhotoGrid({ items: initialItems }: { items: Item[] }) {
                 aria-label={title ? `Agrandir : ${title}` : "Agrandir la photo"}
                 style={{ cursor: "pointer" }}
               >
+                {badges.length > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      left: 8,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 4,
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {badges.map((badge) => (
+                      <span key={badge.variant} style={badgeStyle(badge.variant)}>
+                        {badge.text}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="photo-thumb">
                   <img 
                     src={normalizeImageUrl(p.src)} 

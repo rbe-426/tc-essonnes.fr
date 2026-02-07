@@ -174,6 +174,8 @@ router.get("/latest", async (req: any, res: any) => {
         brand: p.brand || null,
         model: p.model || null,
         mtime: new Date(p.createdAt).getTime(),
+        isReformed: p.isReformed,
+        isPreserved: p.isPreserved,
       };
     }).filter(p => p !== null);
 
@@ -225,6 +227,10 @@ router.get("/weekly-photo", async (req: any, res: any) => {
       brand: photo.brand || null,
       model: photo.model || null,
       mtime: new Date(photo.createdAt).getTime(),
+            isReformed: photo.isReformed,
+            isPreserved: photo.isPreserved,
+      isReformed: photo.isReformed,
+      isPreserved: photo.isPreserved,
     };
 
     return res.json({ success: true, photo: mapped });
@@ -404,6 +410,8 @@ router.get("/:networkSlug", async (req: any, res: any) => {
         displayDesc: p.displayDesc || p.desc,
         date: p.date || fallbackDate,
         createdAt: p.createdAt,
+        isReformed: p.isReformed,
+        isPreserved: p.isPreserved,
       };
     }).filter(p => p !== null);
 
@@ -478,7 +486,7 @@ router.post("/:networkSlug", authMiddleware, async (req: any, res: any) => {
 router.put("/:networkSlug/:photoId", async (req: any, res: any) => {
   try {
     const { networkSlug, photoId } = req.params;
-    const { displayTitle, displayDesc, date, order } = req.body;
+    const { displayTitle, displayDesc, date, order, isReformed, isPreserved } = req.body;
 
     const photo = await photoRepository.findOne({
       where: { id: photoId },
@@ -494,6 +502,8 @@ router.put("/:networkSlug/:photoId", async (req: any, res: any) => {
     if (displayDesc !== undefined) photo.displayDesc = displayDesc;
     if (date !== undefined) photo.date = date;
     if (order !== undefined) photo.order = order;
+    if (isReformed !== undefined) photo.isReformed = isReformed;
+    if (isPreserved !== undefined) photo.isPreserved = isPreserved;
 
     await photoRepository.save(photo);
 
