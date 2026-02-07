@@ -16,9 +16,9 @@ function badgeStyle(variant: BadgeVariant) {
   return {
     display: "inline-flex",
     alignItems: "center",
-    padding: "2px 6px",
+    padding: "4px 10px",
     borderRadius: "999px",
-    fontSize: "0.65rem",
+    fontSize: "0.8rem",
     fontWeight: 700,
     letterSpacing: "0.02em",
     color: "#fff",

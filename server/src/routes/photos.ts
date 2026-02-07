@@ -227,8 +227,6 @@ router.get("/weekly-photo", async (req: any, res: any) => {
       brand: photo.brand || null,
       model: photo.model || null,
       mtime: new Date(photo.createdAt).getTime(),
-            isReformed: photo.isReformed,
-            isPreserved: photo.isPreserved,
       isReformed: photo.isReformed,
       isPreserved: photo.isPreserved,
     };
