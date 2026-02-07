@@ -4,7 +4,7 @@ import ImageWithFallback from "./ImageWithFallback";
 
 async function getWeeklyPhoto(): Promise<LatestItem | null> {
   const backendUrl = process.env.BACKEND_URL || "http://localhost:3001";
-  const response = await fetch(`${backendUrl}/api/photos/weekly`, { cache: "no-store" });
+  const response = await fetch(`${backendUrl}/api/photos/weekly-photo`, { cache: "no-store" });
   if (!response.ok) return null;
   const data = await response.json();
   return data.photo || null;

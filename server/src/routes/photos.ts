@@ -58,6 +58,67 @@ router.get("/latest", async (req: any, res: any) => {
         return null;
       }
       if (!p.imageData) {
+      router.get("/weekly-photo", async (req: any, res: any) => {
+        try {
+          const cutoff = getLastSundayAtSixUtc();
+          const seed = Math.floor(cutoff.getTime() / 1000);
+
+          const total = await photoRepository
+            .createQueryBuilder("photo")
+            .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
+            .andWhere("photo.slug IS NOT NULL")
+            .getCount();
+
+          if (total === 0) {
+            return res.json({ success: true, photo: null });
+          }
+
+          const offset = seededIndex(seed, total);
+
+          const photo = await photoRepository
+            .createQueryBuilder("photo")
+            .where("photo.createdAt <= :cutoff", { cutoff: cutoff.toISOString() })
+            .andWhere("photo.slug IS NOT NULL")
+            .orderBy("photo.createdAt", "DESC")
+            .addOrderBy("photo.id", "DESC")
+            .offset(offset)
+            .limit(1)
+            .select([
+              "photo.id",
+              "photo.src",
+              "photo.title",
+              "photo.displayTitle",
+              "photo.desc",
+              "photo.displayDesc",
+              "photo.slug",
+              "photo.brand",
+              "photo.model",
+              "photo.createdAt",
+            ])
+            .getOne();
+
+          if (!photo || !photo.slug) {
+            return res.json({ success: true, photo: null });
+          }
+
+          const mapped = {
+            href: `/gallery/network/${photo.slug}`,
+            slug: photo.slug,
+            src: `/api/photos/${photo.slug}/image/${photo.id}`,
+            title: photo.displayTitle || photo.title || null,
+            description: photo.displayDesc || photo.desc || null,
+            brand: photo.brand || null,
+            model: photo.model || null,
+            mtime: new Date(photo.createdAt).getTime(),
+          };
+
+          return res.json({ success: true, photo: mapped });
+        } catch (error) {
+          console.error("Error fetching weekly photo:", error);
+          return res.status(500).json({ success: false, message: "Erreur serveur" });
+        }
+      });
+
         console.warn(`⚠️ Photo ${p.id} (${p.slug}) n'a pas d'imageData`);
         return null;
       }
@@ -82,7 +143,7 @@ router.get("/latest", async (req: any, res: any) => {
 });
 
 // GET photo de la semaine (stable jusqu'au dimanche 18h UTC)
-router.get("/weekly", async (req: any, res: any) => {
+router.get("/weekly-photo", async (req: any, res: any) => {
   try {
     const cutoff = getLastSundayAtSixUtc();
     const seed = Math.floor(cutoff.getTime() / 1000);
